@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-  <meta name="build-timestamp" content="2026-02-26 18:40:19 UTC">
+  <meta name="build-timestamp" content="2026-02-26 19:04:30 UTC">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Solfège Piano</title>
 <style>
@@ -451,7 +451,14 @@ let unlockPromise = null;
 // If we create oscillators while suspended, they can "queue up" and all play at once
 // when the context finally resumes. We prevent that by only creating sound when running.
 function ensureAudioRunning() {
-  if (!ctx) ctx = new AudioContext();
+  try {
+    if (!ctx) {
+      // Create the context only as part of a user gesture when possible
+      ctx = new AudioContext();
+    }
+  } catch (e) {
+    return Promise.resolve(false);
+  }
 
   if (ctx.state === 'running') {
     audioUnlocked = true;
@@ -460,28 +467,35 @@ function ensureAudioRunning() {
 
   // Avoid piling up multiple resume() calls.
   if (!unlockPromise) {
-    unlockPromise = ctx.resume().then(() => {
-      audioUnlocked = (ctx.state === 'running');
-
-      // Extra nudge for some iOS versions: start/stop a silent oscillator instantly.
+    unlockPromise = (async () => {
       try {
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        g.gain.value = 0;
-        o.connect(g);
-        g.connect(ctx.destination);
-        o.start();
-        o.stop(ctx.currentTime + 0.001);
-      } catch {}
+        // resume must be called inside a user gesture on iOS
+        await ctx.resume();
 
-      return audioUnlocked;
-    }).catch(() => false).finally(() => { unlockPromise = null; });
+        // iOS 'silent mode' / unlock nudge: play a tiny silent buffer once.
+        const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+        const src = ctx.createBufferSource();
+        src.buffer = buffer;
+        src.connect(ctx.destination);
+        src.start(0);
+        src.stop(0);
+
+        audioUnlocked = (ctx.state === 'running');
+        return audioUnlocked;
+      } catch (e) {
+        audioUnlocked = false;
+        return false;
+      } finally {
+        unlockPromise = null;
+      }
+    })();
   }
 
   return unlockPromise;
 }
 
 // Back-compat name (other code may call getCtx)
+ (other code may call getCtx)
 function getCtx() { return ctx || (ctx = new AudioContext()); }
 
 // Proactively unlock audio on the very first user interaction.
@@ -811,8 +825,10 @@ function triggerKey(midi, on) {
 const pointerToMidi = new Map();
 
 function attachPointerHandlers(el, midi) {
+  // Pointer events (best when supported)
   el.addEventListener('pointerdown', (e) => {
     e.preventDefault();
+    ensureAudioRunning(); // keep inside the same gesture
     try { el.setPointerCapture(e.pointerId); } catch {}
     pointerToMidi.set(e.pointerId, midi);
     triggerKey(midi, true);
@@ -830,6 +846,36 @@ function attachPointerHandlers(el, midi) {
     const m = pointerToMidi.get(e.pointerId);
     if (m !== undefined) triggerKey(m, false);
     pointerToMidi.delete(e.pointerId);
+  });
+
+  // Touch fallback (some iOS builds behave better here)
+  el.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    ensureAudioRunning();
+    // handle all touches on this element
+    for (const t of Array.from(e.changedTouches)) {
+      pointerToMidi.set('t' + t.identifier, midi);
+      triggerKey(midi, true);
+    }
+  }, { passive: false });
+
+  el.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    for (const t of Array.from(e.changedTouches)) {
+      const key = 't' + t.identifier;
+      const m = pointerToMidi.get(key);
+      if (m !== undefined) triggerKey(m, false);
+      pointerToMidi.delete(key);
+    }
+  }, { passive: false });
+
+  el.addEventListener('touchcancel', (e) => {
+    for (const t of Array.from(e.changedTouches)) {
+      const key = 't' + t.identifier;
+      const m = pointerToMidi.get(key);
+      if (m !== undefined) triggerKey(m, false);
+      pointerToMidi.delete(key);
+    }
   });
 }
 
