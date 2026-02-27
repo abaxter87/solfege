@@ -734,6 +734,61 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 }
 </style>
 
+
+<style>
+/* FIXES requested:
+   1) Landscape mini Hand: stop width jitter (lock ONLY syllable column), and keep inner sign off edges in BOTH empty and active states.
+   2) Portrait large Hand: never start full-bleed; keep same centered width before and after a key press.
+*/
+
+/* 1) Landscape mini Hand */
+@media (orientation: landscape) and (max-height: 500px) {
+
+  /* give the mini sign tile breathing room without changing its outer size */
+  #handMini{
+    box-sizing: border-box !important;
+    padding: 6px !important;            /* keeps sign from touching edges */
+  }
+  #handMiniImg{
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    object-fit: contain !important;
+    object-position: center !important;
+  }
+
+  /* lock ONLY the syllable label width so the mini box doesn't reflow by note */
+  #handMiniLab{
+    width: 4.2ch !important;
+    min-width: 4.2ch !important;
+    max-width: 4.2ch !important;
+    flex: 0 0 4.2ch !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* 2) Portrait large Hand: consistent centered width pre/post JS */
+@media (orientation: portrait) {
+
+  /* constrain the card itself */
+  #handsLive{
+    width: calc(100% - 24px) !important;   /* keeps it off screen edges */
+    max-width: 760px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* prevent any inner piece from forcing full-bleed */
+  #handsLive .hands-live-inner,
+  #handsLiveContent,
+  #handsPlaceholder,
+  #handsTiles{
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
