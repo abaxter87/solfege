@@ -497,33 +497,18 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 /* === Note-on-staff rendering tweaks === */
 .note-staff-wrap{
   width: 100%;
-  /* Do NOT rely on height:100% (parent often only has min-height). */
-  min-height: 240px;       /* matches #handsLiveContent stable sizing */
+  height: 100%;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding: 6px;            /* breathing room so SVG never touches edges */
+  padding: 6px;           /* breathing room so SVG never touches edges */
   box-sizing: border-box;
 }
 .note-staff-svg{
   width: 100%;
-  height: auto;            /* allow natural aspect ratio */
-  max-height: 100%;
+  height: 100%;
   display:block;
 }
-
-/* Mini (landscape) note staff: use the mini box's own height (don't force 240px). */
-#handMini .note-staff-wrap{
-  min-height: 0;
-  height: 100%;
-  padding: 4px;
-}
-#handMini .note-staff-svg{
-  height: 100%;
-  width: 100%;
-  object-fit: contain;
-}
-
 
 /* Prevent mini placeholder text from covering the staff SVG in note mode */
 #handMini.note-mode::after{
@@ -2841,23 +2826,50 @@ const HAND_IMAGES = {
     render();
   }
 
-  // Hook triggerKey reliably (Safari/iOS + published builds)
+  // Hook key interactions for hand-sign / note-staff rendering
+  // In some published/Safari contexts, triggerKey may not be writable or may be module-scoped.
+  // So we also listen to pointer events on the keys (capture phase) which is very reliable.
   try {
-    window.__handRenderHook = function(midi, on){
-      try { if (on) noteOn(midi); else noteOff(midi); } catch {}
-    };
-
-    if (typeof window.triggerKey === 'function') {
-      const _tk = window.triggerKey;
-      window.triggerKey = function(midi, on) {
-        try { window.__handRenderHook(midi, on); } catch {}
-        return _tk(midi, on);
+    // Best-effort wrap triggerKey if it's writable.
+    const tk = (typeof window.triggerKey === 'function') ? window.triggerKey :
+               (typeof triggerKey === 'function') ? triggerKey : null;
+    if (tk) {
+      const wrapped = function(midi, on) {
+        try { if (on) noteOn(midi); else noteOff(midi); } catch {}
+        return tk(midi, on);
       };
+      try { window.triggerKey = wrapped; } catch {}
+      try { triggerKey = wrapped; } catch {}
     }
   } catch {}
 
-  // Initial render so placeholder is guaranteed visible on load (and mode sync applies)
-  try { render(); } catch {}
+  // Pointer-based fallback (works even if triggerKey can't be wrapped)
+  const __hsPointerToMidi = new Map();
+  function __hsGetMidiFromEvent(ev){
+    try{
+      const el = ev.target && ev.target.closest ? ev.target.closest('[data-midi]') : null;
+      if (!el) return null;
+      const v = el.getAttribute('data-midi');
+      const m = Number(v);
+      return Number.isFinite(m) ? m : null;
+    }catch(e){ return null; }
+  }
+  document.addEventListener('pointerdown', function(ev){
+    const m = __hsGetMidiFromEvent(ev);
+    if (m == null) return;
+    __hsPointerToMidi.set(ev.pointerId, m);
+    try { noteOn(m); } catch {}
+  }, true);
+
+  function __hsPointerEnd(ev){
+    const m = __hsPointerToMidi.get(ev.pointerId);
+    if (m == null) return;
+    __hsPointerToMidi.delete(ev.pointerId);
+    try { noteOff(m); } catch {}
+  }
+  document.addEventListener('pointerup', __hsPointerEnd, true);
+  document.addEventListener('pointercancel', __hsPointerEnd, true);
+
 
   // Center on Middle C (MIDI 60)
   function centerOnMiddleC() {
@@ -3363,6 +3375,14 @@ document.addEventListener('DOMContentLoaded', function(){
     // Force a render once in case mode was set before first note.
     if (typeof render === 'function') render();
   }catch(e){}
+});
+</script>
+
+
+<script>
+/* Force an initial render so the Hand sign panel isn't blank before the first key press. */
+document.addEventListener('DOMContentLoaded', function(){
+  try{ if (typeof render === 'function') render(); }catch(e){}
 });
 </script>
 
