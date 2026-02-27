@@ -242,6 +242,19 @@
   background: rgba(255,255,255,0.06);
   position: relative;
   flex: 0 0 auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px;
+  box-sizing:border-box;
+}
+#handMini img, #handMini svg{
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  display:block;
 }
 
 /* Empty state label (shows when the image has no src / JS hasn't run yet) */
@@ -2173,6 +2186,8 @@ buildStaffMarkers();
 function triggerKey(midi, on) {
   const el = keyEls[midi];
   if (!el) return;
+  // Update Hand sign / Note display panels
+  try { if (typeof noteOn === 'function' && typeof noteOff === 'function') { on ? noteOn(midi) : noteOff(midi); } } catch (e) {}
   if (on) {
     el.classList.add('active');
     playNote(midi);
@@ -2825,51 +2840,6 @@ const HAND_IMAGES = {
     // Keep the last hand sign visible until a NEW key is pressed.
     render();
   }
-
-  // Hook key interactions for hand-sign / note-staff rendering
-  // In some published/Safari contexts, triggerKey may not be writable or may be module-scoped.
-  // So we also listen to pointer events on the keys (capture phase) which is very reliable.
-  try {
-    // Best-effort wrap triggerKey if it's writable.
-    const tk = (typeof window.triggerKey === 'function') ? window.triggerKey :
-               (typeof triggerKey === 'function') ? triggerKey : null;
-    if (tk) {
-      const wrapped = function(midi, on) {
-        try { if (on) noteOn(midi); else noteOff(midi); } catch {}
-        return tk(midi, on);
-      };
-      try { window.triggerKey = wrapped; } catch {}
-      try { triggerKey = wrapped; } catch {}
-    }
-  } catch {}
-
-  // Pointer-based fallback (works even if triggerKey can't be wrapped)
-  const __hsPointerToMidi = new Map();
-  function __hsGetMidiFromEvent(ev){
-    try{
-      const el = ev.target && ev.target.closest ? ev.target.closest('[data-midi]') : null;
-      if (!el) return null;
-      const v = el.getAttribute('data-midi');
-      const m = Number(v);
-      return Number.isFinite(m) ? m : null;
-    }catch(e){ return null; }
-  }
-  document.addEventListener('pointerdown', function(ev){
-    const m = __hsGetMidiFromEvent(ev);
-    if (m == null) return;
-    __hsPointerToMidi.set(ev.pointerId, m);
-    try { noteOn(m); } catch {}
-  }, true);
-
-  function __hsPointerEnd(ev){
-    const m = __hsPointerToMidi.get(ev.pointerId);
-    if (m == null) return;
-    __hsPointerToMidi.delete(ev.pointerId);
-    try { noteOff(m); } catch {}
-  }
-  document.addEventListener('pointerup', __hsPointerEnd, true);
-  document.addEventListener('pointercancel', __hsPointerEnd, true);
-
 
   // Center on Middle C (MIDI 60)
   function centerOnMiddleC() {
