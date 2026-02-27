@@ -681,6 +681,17 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 }
 </style>
 
+
+<style>
+/* Landscape: prevent mini Hand box width jitter WITHOUT changing any heights */
+@media (orientation: landscape) and (max-height: 500px) {
+  #handMiniSyllable {
+    min-width: 3.8ch !important;   /* reserves space for Do/Re/Mi/Fa/Sol/La/Ti */
+    white-space: nowrap !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
