@@ -1131,15 +1131,15 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 }
 
 /* Mini: hide syllable label when in note mode to free horizontal space */
-.hand-mini.note-mode #handMiniLab{
+#handMini.note-mode #handMiniLab{
   display:none !important;
 }
 /* Mini: hide the img when in note mode */
-.hand-mini.note-mode #handMiniImg{
+#handMini.note-mode #handMiniImg{
   display:none !important;
 }
 /* Mini: show staff wrap when in note mode */
-.hand-mini:not(.note-mode) .note-staff-wrap{
+#handMini:not(.note-mode) .note-staff-wrap{
   display:none !important;
 }
 </style>
@@ -1221,7 +1221,7 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 </svg>
   </div>
         <div id="handMiniHolder" aria-hidden="true">
-          <div id="handMini" aria-label="Hand sign (mini)">
+          <div id="handMini" class="hand-mini" aria-label="Hand sign (mini)">
             <img id="handMiniImg" class="hand-mini-img" alt="Hand sign" />
           </div>
           <div id="handMiniLab" class="hand-mini-label">Do</div>
@@ -1997,8 +1997,8 @@ const HAND_IMAGES = {
     const spells = spellingsForMidi(midi); // ['C#','Db'] or ['E']
     const octave = Math.floor(midi/12) - 1;
 
-    const bottomY = 70;      // bottom staff line y
-    const step = 7;          // diatonic step height (line/space)
+    const bottomY = 95;      // bottom staff line y (extra headroom for ledger lines)
+    const step = 8;          // diatonic step height (line/space)
     const staffLeft = 18;
     const staffRight = 150;
 
@@ -2033,10 +2033,10 @@ const HAND_IMAGES = {
 
     // Optional tiny caption (only when both)
     const caption = (spells.length === 2) ? `${spells[0]} / ${spells[1]}` : `${spells[0]}`;
-    const capY = 88;
+    const capY = 118;
 
     return `
-<svg class="note-staff-svg" viewBox="0 0 170 100" preserveAspectRatio="xMidYMid meet" aria-label="Note on staff">
+<svg class="note-staff-svg" viewBox="0 0 170 130" preserveAspectRatio="xMidYMid meet" aria-label="Note on staff">
   <!-- staff lines -->
   <g stroke="rgba(255,255,255,0.75)" stroke-width="1.6" stroke-linecap="round">
     <line x1="${staffLeft}" y1="${bottomY}" x2="${staffRight}" y2="${bottomY}"/>
@@ -2639,7 +2639,7 @@ function forceAccidentalsBoth(){
 
     const caption = (spells.length===2) ? `${spells[0]} / ${spells[1]}` : `${spells[0]}`;
     return `
-<svg class="note-staff-svg" viewBox="0 0 170 100" preserveAspectRatio="xMidYMid meet" aria-label="Note on staff">
+<svg class="note-staff-svg" viewBox="0 0 170 130" preserveAspectRatio="xMidYMid meet" aria-label="Note on staff">
   <g stroke="rgba(255,255,255,0.75)" stroke-width="1.6" stroke-linecap="round">
     <line x1="${staffLeft}" y1="${bottomY}" x2="${staffRight}" y2="${bottomY}"/>
     <line x1="${staffLeft}" y1="${bottomY-2*step}" x2="${staffRight}" y2="${bottomY-2*step}"/>
