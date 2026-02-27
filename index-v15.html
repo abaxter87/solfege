@@ -530,6 +530,40 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 }
 </style>
 
+
+<style>
+/* Landscape mini Hand sign: keep OUTER box same height as clef boxes while keeping sign large */
+@media (orientation: landscape) and (max-height: 500px) {
+
+  /* Make the outer card not gain extra height from padding */
+  #handMiniHolder {
+    box-sizing: border-box !important;
+    padding: 0 10px !important;   /* remove vertical padding */
+    gap: 12px !important;
+    height: 100% !important;      /* match row height */
+    align-items: center !important;
+  }
+
+  /* Ensure the inner tile can be large without pushing the card taller */
+  #handMiniInner,
+  #handMiniTile,
+  .hand-mini-inner {
+    width: 90px !important;
+    height: 90px !important;
+    min-width: 90px !important;
+    min-height: 90px !important;
+    margin: 0 !important;
+  }
+
+  /* Keep label vertically centered */
+  #handMiniSyllable,
+  .hand-mini-syllable {
+    margin: 0 !important;
+    line-height: 1 !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
