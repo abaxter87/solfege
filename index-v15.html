@@ -208,6 +208,60 @@
     text-anchor: middle;
 }
 
+
+/* Row wrapper so we can place the mini hand sign beside the key-signature previews */
+.keysig-row{
+  width: min(820px, 100%);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* Mini hand sign (hidden by default; enabled only on phones in landscape) */
+#handMiniHolder{
+  display:none;
+  align-items:center;
+  gap:8px;
+}
+
+#handMini{
+  width:72px;
+  height:72px;
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.20);
+  background: rgba(20,22,45,.55);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+#handMiniImg{
+  width:100%;
+  height:100%;
+  object-fit: cover;
+  object-position: center;
+  display:block;
+}
+
+#handMiniLab{
+  font-size: 12px;
+  line-height: 1.1;
+  font-weight: 700;
+  opacity: .9;
+  white-space: nowrap;
+}
+
+/* Only show the mini hand sign on phones in landscape,
+   and only after you've scrolled past the top controls (body[data-mini="1"]). */
+@media (max-width: 900px) and (orientation: landscape){
+  .keysig-row{
+    justify-content: space-between;
+  }
+  body[data-mini="1"] #handMiniHolder{
+    display:flex;
+  }
+}
 #keySigTreble .keylabel{ fill: rgba(255,255,255,0.70); font-size: 12px; font-weight: 700; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
 
 .keysig-grid{
@@ -369,13 +423,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 /* === End DO nudge === */
 
 
-/* === Mini hand sign (mobile landscape) === */
-#handMiniHolder{display:none;position:relative;justify-content:flex-end;pointer-events:none;}
-#handMini{pointer-events:none;position:sticky;top:calc(env(safe-area-inset-top, 0px) + 8px);margin-left:auto;margin-right:12px;z-index:50;background:rgba(20,22,40,0.92);border:1px solid rgba(255,255,255,0.14);border-radius:14px;padding:8px 10px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 10px 26px rgba(0,0,0,0.35);display:flex;align-items:center;gap:10px;}
-#handMini .mini-img{width:86px;height:64px;border-radius:10px;background:#fff;object-fit:contain;display:block;}
-#handMini .mini-lab{font-weight:800;font-size:18px;letter-spacing:0.2px;}
-
-
 </style>
 
 <style>
@@ -448,11 +495,19 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   </select>
 </label>
 <div class="keysig-preview" aria-label="Key signature preview">
-  <div class="keysig-grid">
+  <div class="keysig-row">
+        <div class="keysig-grid">
     <svg id="keySigBass" viewBox="0 0 180 70" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bass clef key signature preview"></svg>
     <svg id="keySigTreble" viewBox="0 0 180 70" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Treble clef key signature preview"></svg>
   </div>
-</div>
+        <div id="handMiniHolder" aria-hidden="true">
+          <div id="handMini" aria-label="Hand sign (mini)">
+            <img id="handMiniImg" class="hand-mini-img" alt="Hand sign" />
+          </div>
+          <div id="handMiniLab" class="hand-mini-label">Do</div>
+        </div>
+      </div>
+    </div>
 
 
 
@@ -460,11 +515,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 
 <div class="piano-wrap" id="scrollWrap">
   <!-- Mini hand sign (phones in landscape): appears after controls scroll away; sticky within piano area so it never covers the keyboard -->
-  <div id="handMiniHolder" aria-hidden="true">
-    <div id="handMini" aria-label="Hand sign">
-      <img id="handMiniImg" class="mini-img" alt="Hand sign"/>
-      <div id="handMiniLab" class="mini-lab">Do</div>
-    </div>
   </div>
 
   <div class="staff-strip" id="staffStrip">
@@ -1560,18 +1610,32 @@ function forceAccidentalsBoth(){
 
 // Mini hand sign visibility (phones in landscape): show only after top controls are out of view
 (function(){
-  const holder = document.getElementById('handMiniHolder');
-  const controls = document.querySelector('.controls');
-  function update(){
-    if (!holder) return;
-    const isLandscapePhone = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
-    if (!isLandscapePhone){ holder.style.display = 'none'; return; }
-    if (!controls){ holder.style.display = 'flex'; return; }
-    holder.style.display = (controls.getBoundingClientRect().bottom < 20) ? 'flex' : 'none';
+  const controls =
+    document.querySelector('.controls') ||
+    document.getElementById('controls') ||
+    document.querySelector('[data-controls]');
+  const scrollWrap = document.getElementById('scrollWrap');
+
+  function getScrollTop(){
+    if (scrollWrap) return scrollWrap.scrollTop || 0;
+    const se = document.scrollingElement || document.documentElement;
+    return (se && se.scrollTop) ? se.scrollTop : 0;
   }
-  const scroller = document.getElementById('scrollWrap') || window;
-  scroller.addEventListener('scroll', update, {passive:true});
-  window.addEventListener('resize', update);
+
+  function update(){
+    const isLandscapePhone = window.matchMedia('(max-width: 900px) and (orientation: landscape)').matches;
+    if (!isLandscapePhone){
+      document.body.dataset.mini = '0';
+      return;
+    }
+    const threshold = controls ? (controls.offsetHeight || 0) : 0;
+    const show = getScrollTop() > (threshold - 10);
+    document.body.dataset.mini = show ? '1' : '0';
+  }
+
+  window.addEventListener('resize', update, {passive:true});
+  window.addEventListener('orientationchange', update, {passive:true});
+  (scrollWrap || window).addEventListener('scroll', update, {passive:true});
   update();
 })();
 </script>
