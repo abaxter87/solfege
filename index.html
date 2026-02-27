@@ -692,6 +692,48 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 }
 </style>
 
+
+<style>
+/* Patch: spacing + consistent sizing */
+
+/* 1) Landscape: keep mini hand image off the edges (no height changes to the outer card) */
+@media (orientation: landscape) and (max-height: 500px) {
+  /* internal tile directly around the hand sign */
+  #handMini {
+    box-sizing: border-box !important;
+    padding: 6px !important;           /* creates breathing room so sign doesn't touch edges */
+  }
+  #handMiniImg {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    object-fit: contain !important;
+    object-position: center !important;
+  }
+}
+
+/* 2) Portrait: keep the large Hand sign panel the same width in empty state and active state */
+@media (orientation: portrait) {
+  /* center the entire Hand sign card and prevent full-bleed width */
+  #handsLive,
+  #handsLiveHolder,
+  #handsLiveContent,
+  .hands-live,
+  .hands-live-inner {
+    width: min(100%, 760px) !important;
+    max-width: 760px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* ensure the page still has side padding so the centered card doesn't touch edges */
+  body {
+    padding-left: max(12px, env(safe-area-inset-left)) !important;
+    padding-right: max(12px, env(safe-area-inset-right)) !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
