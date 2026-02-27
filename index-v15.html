@@ -3,7 +3,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-  <meta name="build-timestamp" content="2026-02-27 01:26:46 UTC">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Solfège Piano</title>
 <style>
@@ -219,48 +218,86 @@
   gap: 14px;
 }
 
-/* Mini hand sign (hidden by default; enabled only on phones in landscape) */
+/* Mini hand sign container (hidden by default; enabled only on phones in landscape)
+   This container holds BOTH the hand image and the syllable label. */
 #handMiniHolder{
   display:none;
   align-items:center;
-  gap:8px;
+  gap:10px;
+  min-height:70px;
+  align-self: stretch;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,0.04);
+  box-shadow: 0 10px 26px rgba(0,0,0,.28);
 }
 
+/* Mini hand sign: image area inside the container (no border to avoid double-border on iOS) */
 #handMini{
-  width:72px;
-  height:72px;
-  border-radius:14px;
+  width:52px;
+  height:52px;
+  border-radius:12px;
   overflow:hidden;
-  border:1px solid rgba(255,255,255,.20);
-  background: rgba(20,22,45,.55);
-  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  background: rgba(255,255,255,0.06);
+  position: relative;
+  flex: 0 0 auto;
+}
+
+/* Empty state label (shows when the image has no src / JS hasn't run yet) */
+#handMini::after{
+  content: "Hand";
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: rgba(255,255,255,0.55);
+  pointer-events:none;
+}
+
+/* When we have a real image, hide the placeholder text */
+#handMini.has-img::after{
+  content:"";
+  display:none;
 }
 
 #handMiniImg{
   width:100%;
   height:100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   display:block;
+  background: transparent;
+}
+
+/* If no src is set yet, hide the <img> completely (prevents iOS broken-image framing) */
+#handMiniImg:not([src]),
+#handMiniImg[src=""]{
+  display:none !important;
 }
 
 #handMiniLab{
-  font-size: 12px;
+  font-size: 16px;
   line-height: 1.1;
-  font-weight: 700;
-  opacity: .9;
+  font-weight: 900;
+  opacity: .95;
   white-space: nowrap;
+  padding-right: 2px;
 }
 
-/* Only show the mini hand sign on phones in landscape,
-   and only after you've scrolled past the top controls (body[data-mini="1"]). */
+/* iPhone landscape: show the mini hand sign inline next to the two
+   key-signature previews (no sticky/scroll logic). */
 @media (max-width: 900px) and (orientation: landscape){
-  .keysig-row{
-    justify-content: space-between;
-  }
-  body[data-mini="1"] #handMiniHolder{
-    display:flex;
-  }
+  .keysig-row{ justify-content:center; align-items: stretch; }
+  #handMiniHolder{ display:flex; }
+
+  /* On short landscape phones, the big hand panel is usually off-screen.
+     Use the inline mini preview instead. */
+  #handsLive{ display:none; }
 }
 #keySigTreble .keylabel{ fill: rgba(255,255,255,0.70); font-size: 12px; font-weight: 700; font-family: system-ui, -apple-system, Segoe UI, sans-serif; }
 
@@ -301,7 +338,7 @@ button, select, label, .white-key, .black-key, .piano, #scrollWrap { touch-actio
   border-radius: 14px;
   background: rgba(255,255,255,0.10);
   padding: 12px 12px 14px;
-  min-height: 260px;
+  min-height: 220px;
   display:flex; flex-direction:column;
 }
 .hands-live-title{ font-weight: 800; margin-bottom: 10px; text-align:center; }
@@ -392,6 +429,14 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 #btnNote{
   border-top-right-radius:999px;
   border-bottom-right-radius:999px;
+}
+
+/* Portrait empty-state sizing: don't leave a huge blank panel before JS loads */
+@media (max-width: 520px) and (orientation: portrait) {
+  .hands-live-inner{ min-height: 180px !important; padding: 10px 10px 12px; }
+  #handsLiveContent{ min-height: 120px !important; }
+  #handsPlaceholder, #handsTiles{ min-height: 120px !important; }
+  .hands-live-placeholder{ font-size: 13px; }
 }
 /* === End tight segmented control === */
 
@@ -497,8 +542,26 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 <div class="keysig-preview" aria-label="Key signature preview">
   <div class="keysig-row">
         <div class="keysig-grid">
-    <svg id="keySigBass" viewBox="0 0 180 70" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bass clef key signature preview"></svg>
-    <svg id="keySigTreble" viewBox="0 0 180 70" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Treble clef key signature preview"></svg>
+    <svg id="keySigBass" viewBox="0 0 180 70" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bass clef key signature preview">
+  <g aria-hidden="true">
+    <line class="staff-line" x1="0" y1="18" x2="180" y2="18"></line>
+    <line class="staff-line" x1="0" y1="26" x2="180" y2="26"></line>
+    <line class="staff-line" x1="0" y1="34" x2="180" y2="34"></line>
+    <line class="staff-line" x1="0" y1="42" x2="180" y2="42"></line>
+    <line class="staff-line" x1="0" y1="50" x2="180" y2="50"></line>
+    <text class="clef" x="16" y="46">𝄢</text>
+  </g>
+</svg>
+    <svg id="keySigTreble" viewBox="0 0 180 70" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Treble clef key signature preview">
+  <g aria-hidden="true">
+    <line class="staff-line" x1="0" y1="18" x2="180" y2="18"></line>
+    <line class="staff-line" x1="0" y1="26" x2="180" y2="26"></line>
+    <line class="staff-line" x1="0" y1="34" x2="180" y2="34"></line>
+    <line class="staff-line" x1="0" y1="42" x2="180" y2="42"></line>
+    <line class="staff-line" x1="0" y1="50" x2="180" y2="50"></line>
+    <text class="clef" x="16" y="52">𝄞</text>
+  </g>
+</svg>
   </div>
         <div id="handMiniHolder" aria-hidden="true">
           <div id="handMini" aria-label="Hand sign (mini)">
@@ -514,9 +577,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 </div>
 
 <div class="piano-wrap" id="scrollWrap">
-  <!-- Mini hand sign (phones in landscape): appears after controls scroll away; sticky within piano area so it never covers the keyboard -->
-  </div>
-
   <div class="staff-strip" id="staffStrip">
     <div class="treble-clef" aria-hidden="true">𝄞</div>
     <div class="staff-notes" id="staffNotes"></div>
@@ -1237,9 +1297,11 @@ const HAND_IMAGES = {
   if (mini && miniImg && miniLab) {
     const sylMini = getSyllable(lastHandMidi, 'solfege');
     const baseMini = (sylMini || 'Do').split('/')[0];
-    miniImg.src = HAND_IMAGES[baseMini] || HAND_IMAGES['Do'];
+    const src = HAND_IMAGES[baseMini] || HAND_IMAGES['Do'];
+    miniImg.src = src;
     miniImg.classList.toggle('shift-down', baseMini === 'Do');
     miniLab.textContent = sylMini || baseMini;
+    mini.classList.toggle('has-img', !!src);
   }
 
   }
