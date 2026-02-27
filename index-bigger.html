@@ -497,18 +497,33 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 /* === Note-on-staff rendering tweaks === */
 .note-staff-wrap{
   width: 100%;
-  height: 100%;
+  /* Do NOT rely on height:100% (parent often only has min-height). */
+  min-height: 240px;       /* matches #handsLiveContent stable sizing */
   display:flex;
   align-items:center;
   justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
+  padding: 6px;            /* breathing room so SVG never touches edges */
   box-sizing: border-box;
 }
 .note-staff-svg{
   width: 100%;
-  height: 100%;
+  height: auto;            /* allow natural aspect ratio */
+  max-height: 100%;
   display:block;
 }
+
+/* Mini (landscape) note staff: use the mini box's own height (don't force 240px). */
+#handMini .note-staff-wrap{
+  min-height: 0;
+  height: 100%;
+  padding: 4px;
+}
+#handMini .note-staff-svg{
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+
 
 /* Prevent mini placeholder text from covering the staff SVG in note mode */
 #handMini.note-mode::after{
@@ -2609,6 +2624,13 @@ const HAND_IMAGES = {
   }
 
   function makeStaffSVG(midi){
+    // Clamp displayed staff range for singing-friendly view (C2–C6).
+    // MIDI: C2=36, C6=84
+    const rawMidi = midi;
+    let clampFlag = 0; // -1 low, +1 high
+    if (midi < 36){ midi = 36; clampFlag = -1; }
+    if (midi > 84){ midi = 84; clampFlag = 1; }
+
     const clef = clefForMidi(midi);
     const spells = spellingsForMidi(midi); // ['C#','Db'] or ['E']
     const octave = Math.floor(midi/12) - 1;
@@ -2674,7 +2696,10 @@ const HAND_IMAGES = {
     });
 
     // Caption (when showing both enharmonics)
-    const caption = (spells.length === 2) ? `${spells[0]} / ${spells[1]}` : `${spells[0]}`;
+    const rawSpells = spellingsForMidi(rawMidi);
+    let caption = (rawSpells.length === 2) ? `${rawSpells[0]} / ${rawSpells[1]}` : `${rawSpells[0]}`;
+    if (clampFlag === -1) caption = `↓ ${caption}`;
+    if (clampFlag === 1)  caption = `↑ ${caption}`;
     const capY = 88;
 
     return `
@@ -2740,7 +2765,7 @@ const HAND_IMAGES = {
     const base = baseFor(syl);
 
     // If user selected Note Names mode, render notation-on-staff instead of hand sign.
-    if (typeof displayMode !== 'undefined' && displayMode === 'note' && window.__noteStaff) {
+    if (isNoteMode() && window.__noteStaff) {
       const svg = window.__noteStaff.makeStaffSVG(m);
       const wrap = window.__noteStaff.ensureWrap(box, 'handsNoteWrap');
       wrap.innerHTML = svg;
@@ -2816,16 +2841,23 @@ const HAND_IMAGES = {
     render();
   }
 
-  // Hook triggerKey without breaking if it's not writable
+  // Hook triggerKey reliably (Safari/iOS + published builds)
   try {
-    if (typeof triggerKey === 'function') {
-      const _tk = triggerKey;
-      triggerKey = function(midi, on) {
-        try { if (on) noteOn(midi); else noteOff(midi); } catch {}
+    window.__handRenderHook = function(midi, on){
+      try { if (on) noteOn(midi); else noteOff(midi); } catch {}
+    };
+
+    if (typeof window.triggerKey === 'function') {
+      const _tk = window.triggerKey;
+      window.triggerKey = function(midi, on) {
+        try { window.__handRenderHook(midi, on); } catch {}
         return _tk(midi, on);
       };
     }
   } catch {}
+
+  // Initial render so placeholder is guaranteed visible on load (and mode sync applies)
+  try { render(); } catch {}
 
   // Center on Middle C (MIDI 60)
   function centerOnMiddleC() {
@@ -3312,6 +3344,26 @@ function forceAccidentalsBoth(){
     }
   };
 })();
+</script>
+
+
+<script>
+/* Mode sync for Safari/published builds: ensure displayMode matches the visible toggle on first render. */
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    const bn=document.getElementById('btnNote');
+    const bs=document.getElementById('btnSolfege');
+    if (bn && (bn.classList.contains('active') || bn.getAttribute('aria-pressed')==='true')){
+      window.displayMode = 'note';
+    } else if (bs && (bs.classList.contains('active') || bs.getAttribute('aria-pressed')==='true')){
+      window.displayMode = 'solfege';
+    }
+  }catch(e){}
+  try{
+    // Force a render once in case mode was set before first note.
+    if (typeof render === 'function') render();
+  }catch(e){}
+});
 </script>
 
 </body>
