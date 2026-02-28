@@ -1712,7 +1712,9 @@ const FLAT_ORDER  = ['B','E','A','D','G','C','F'];
   Staff lines are at y = 18, 26, 34, 42, 50 (top to bottom).
 */
 const SHARP_Y = [18, 30, 14, 26, 38, 22, 34]; // F C G D A E B (treble positions)
-const FLAT_Y  = [33, 21, 37, 25, 41, 29, 17]; // B E A D G C F (treble positions) // B E A D G C F (order)
+// Treble clef key-signature flats (order: Bb, Eb, Ab, Db, Gb, Cb, Fb).
+// Fb must sit on the top line (F) — i.e., y=18 for this staff.
+const FLAT_Y  = [33, 21, 37, 25, 41, 29, 18];
 /*
   Bass clef key-signature positions (standard engraving).
   Staff lines are at y = 18, 26, 34, 42, 50 (top → bottom).
