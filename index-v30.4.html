@@ -822,18 +822,14 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 
 /* Bass clef slightly smaller */
 #keySigBass .clef,
-#bassKeySig .clef,
-#keySigBass text,
-#bassKeySig text {
+#bassKeySig .clef {
   transform: scale(0.84);
   transform-origin: left center;
 }
 
 /* Treble clef slightly larger for visual parity */
 #keySigTreble .clef,
-#trebleKeySig .clef,
-#keySigTreble text,
-#trebleKeySig text {
+#trebleKeySig .clef {
   transform: scale(1.04);
   transform-origin: left center;
 }
@@ -1708,7 +1704,7 @@ const SHARP_Y = [17, 29, 21, 25, 37, 49, 33]; // F C G D A E B (treble positions
 const FLAT_Y  = [33, 21, 37, 25, 41, 29, 17]; // B E A D G C F (treble positions) // B E A D G C F (order)
 /* Bass clef key-signature positions (approx. standard engraving layout). */
 const BASS_SHARP_Y = [22, 34, 26, 38, 30, 42, 24]; // F C G D A E B (bass positions)
-const BASS_FLAT_Y  = [42, 30, 18, 34, 50, 38, 26]; // B E A D G C F (bass positions) // B E A D G C F (bass positions)
+const BASS_FLAT_Y  = [39, 27, 17, 31, 47, 35, 23]; // B E A D G C F (bass positions) // B E A D G C F (bass positions)
 
 
 function updateKeySigPreview() {
