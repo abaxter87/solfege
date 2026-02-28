@@ -1757,7 +1757,14 @@ function updateKeySigPreview() {
     // Place the whole key-signature group closer to the clef (not right-aligned).
     // Keep it safely inside the staff box by slightly compressing spacing if needed.
     const maxX = 168;          // right edge of the drawable area
-    const minStart = 56;       // just after the clef
+    // Start just after the clef, but if the treble label is long, push the accidentals right
+    // so they don't overlap the key name (e.g., C# Major, Gb Major).
+    let minStart = 56;
+    if (showLabel && svg === keySigTreble) {
+      // Rough text width estimate (px). Keeps this lightweight without getBBox timing issues.
+      const estLabelW = (kd.label || '').length * 11;
+      minStart = Math.max(minStart, 12 + estLabelW + 12);
+    }
     const maxSpacing = (count >= 6) ? 12 : 14;
     const minSpacing = 10;
 
