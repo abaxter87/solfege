@@ -1761,12 +1761,30 @@ function updateKeySigPreview() {
     // so they don't overlap the key name (e.g., C# Major, Gb Major).
     let minStart = 56;
     if (showLabel && svg === keySigTreble) {
-      // Rough text width estimate (px). Keeps this lightweight without getBBox timing issues.
-      const estLabelW = (kd.label || '').length * 11;
-      minStart = Math.max(minStart, 12 + estLabelW + 12);
+      // Keep accidentals from overlapping the key label, but avoid pushing them too far right.
+      // Prefer measured SVG text width when available; otherwise use a conservative estimate.
+      const labelEl = svg.querySelector('.keylabel');
+      let labelW = 0;
+      try {
+        if (labelEl && typeof labelEl.getComputedTextLength === 'function') {
+          labelW = labelEl.getComputedTextLength();
+        }
+      } catch (e) {}
+      if (!labelW) {
+        // Conservative estimate (px) tuned for the current font sizes.
+        labelW = (kd.label || '').length * 8.5;
+      }
+      minStart = Math.max(minStart, 12 + labelW + 10);
     }
     const maxSpacing = (count >= 6) ? 12 : 14;
     const minSpacing = 10;
+
+    // Clamp start so the group doesn't hug/overflow the right edge.
+    if (count > 1) {
+      minStart = Math.min(minStart, maxX - (count - 1) * minSpacing);
+    } else {
+      minStart = Math.min(minStart, maxX - 2);
+    }
 
     let spacing = maxSpacing;
     if (count > 1) {
