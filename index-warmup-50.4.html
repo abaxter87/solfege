@@ -2801,87 +2801,50 @@ function forceAccidentalsBoth(){
 
 <script>
 (function () {
+  // Ascending broken-thirds pattern:
   // 1.3.2.4.3.5.4.6.5.7.6.8.7.9.7.8
-  const WARMUP_ASC_OFFSETS = [0, 4, 2, 5, 4, 7, 5, 9, 7, 11, 9, 12, 11, 14, 11, 12];
-  const STEP_MS = 1000;   // 60 BPM
+  const OFFSETS = [0, 4, 2, 5, 4, 7, 5, 9, 7, 11, 9, 12, 11, 14, 11, 12];
+  const STEP_MS = 1000; // 60 BPM
   const HOLD_MS = 850;
 
-  function normalizeSyllable(label) {
-    let s = String(label || "").trim();
-    if (!s) return "";
-    s = s.split("(")[0].trim();
-    s = s.split(/\s+/)[0].trim();
-    if (s.includes("/")) return "";
-    return s;
+  function keyElForMidi(midi) {
+    return document.querySelector('[data-midi="' + midi + '"]');
   }
 
-  function updateWarmupHandSign(midi) {
-    try {
-      if (typeof displayMode !== "undefined" && displayMode === "note") return;
+  function pressRenderedKey(midi) {
+    const el = keyElForMidi(midi);
+    if (!el) return;
 
-      const syl = normalizeSyllable(typeof getLabel === "function" ? getLabel(midi) : "");
-      if (!syl) return;
+    if (window.PointerEvent) {
+      const down = new PointerEvent("pointerdown", {
+        bubbles: true,
+        pointerId: 1000 + midi,
+        pointerType: "mouse",
+        button: 0,
+        isPrimary: true
+      });
+      el.dispatchEvent(down);
 
-      const handsTiles = document.getElementById("handsTiles");
-      const handsPlaceholder = document.getElementById("handsPlaceholder");
-      if (handsTiles) {
-        handsTiles.innerHTML = "";
-        const tile = document.createElement("div");
-        tile.className = "hand-tile";
-
-        const im = document.createElement("img");
-        im.className = "hand-img";
-        im.alt = syl + " hand sign";
-        if (typeof HAND_IMAGES !== "undefined" && HAND_IMAGES[syl]) {
-          im.src = HAND_IMAGES[syl];
-        }
-        tile.appendChild(im);
-
-        const lab = document.createElement("div");
-        lab.className = "hand-label";
-        lab.textContent = syl;
-        tile.appendChild(lab);
-
-        handsTiles.appendChild(tile);
-      }
-      if (handsPlaceholder) {
-        handsPlaceholder.style.display = "none";
-      }
-
-      const mini = document.getElementById("handMini");
-      const miniImg = document.getElementById("handMiniImg");
-      const miniLab = document.getElementById("handMiniLab");
-      if (mini && miniImg && miniLab) {
-        if (typeof HAND_IMAGES !== "undefined" && HAND_IMAGES[syl]) {
-          miniImg.src = HAND_IMAGES[syl];
-          mini.classList.add("has-img");
-        }
-        miniLab.textContent = syl;
-      }
-    } catch (e) {
-      // ignore UI-only hand sign errors
-    }
-  }
-
-  function pressKey(midi) {
-    updateWarmupHandSign(midi);
-
-    if (typeof triggerKey === "function") {
-      triggerKey(midi, true);
-      setTimeout(function () { triggerKey(midi, false); }, HOLD_MS);
+      setTimeout(function () {
+        const up = new PointerEvent("pointerup", {
+          bubbles: true,
+          pointerId: 1000 + midi,
+          pointerType: "mouse",
+          button: 0,
+          isPrimary: true
+        });
+        el.dispatchEvent(up);
+      }, HOLD_MS);
       return;
     }
 
-    // Fallback: visual + audio
-    try {
-      const el = document.querySelector('[data-midi="' + midi + '"]');
-      if (el) el.classList.add("active");
-      if (typeof playNote === "function") playNote(midi);
-      setTimeout(function () {
-        const el2 = document.querySelector('[data-midi="' + midi + '"]');
-        if (el2) el2.classList.remove("active");
-      }, HOLD_MS);
-    } catch (e) {}
+    const down = new MouseEvent("mousedown", { bubbles: true, button: 0 });
+    el.dispatchEvent(down);
+
+    setTimeout(function () {
+      const up = new MouseEvent("mouseup", { bubbles: true, button: 0 });
+      el.dispatchEvent(up);
+    }, HOLD_MS);
   }
 
   async function playWarmup() {
@@ -2891,12 +2854,14 @@ function forceAccidentalsBoth(){
       }
     } catch (e) {}
 
-    const base = 60 + (typeof tonic !== "undefined" ? tonic : 0);
-
+    const base = 60 + tonic;
     let delay = 0;
-    WARMUP_ASC_OFFSETS.forEach(function (offset) {
+
+    OFFSETS.forEach(function (offset) {
       const midi = base + offset;
-      setTimeout(function () { pressKey(midi); }, delay);
+      setTimeout(function () {
+        pressRenderedKey(midi);
+      }, delay);
       delay += STEP_MS;
     });
   }
