@@ -2808,23 +2808,36 @@ const WARMUP_ASC = [
 
 const DEG = {Do:0,Re:2,Mi:4,Fa:5,Sol:7,La:9,Ti:11};
 
-function solfegeToMidi(syl, base){ return base + DEG[syl]; }
-
 function playWarmup(){
   if(typeof tonic === "undefined") return;
+
   const base = 60 + tonic;
   let delay = 0;
-  const step = 450;
+  const step = 1000; // 60 BPM
+
+  let prevDeg = -1;
+  let octave = 0;
 
   WARMUP_ASC.forEach(syl=>{
-    const midi = solfegeToMidi(syl, base);
+
+    const deg = DEG[syl];
+
+    if(prevDeg !== -1 && deg < prevDeg){
+      octave += 12;
+    }
+
+    const midi = base + deg + octave;
+
     setTimeout(()=>{
       if(typeof triggerKey === "function"){
         triggerKey(midi,true);
-        setTimeout(()=>triggerKey(midi,false),300);
+        setTimeout(()=>triggerKey(midi,false),700);
       }
     }, delay);
+
     delay += step;
+    prevDeg = deg;
+
   });
 }
 
