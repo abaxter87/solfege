@@ -2802,53 +2802,44 @@ function forceAccidentalsBoth(){
 <!-- Choir Warm-up Button -->
 <script>
 (function(){
-const WARMUP_ASC = [
-"Do","Mi","Re","Fa","Mi","Sol","Fa","La","Sol","Ti","La","Do","Ti","Re","Do"
-];
-
-const DEG = {Do:0,Re:2,Mi:4,Fa:5,Sol:7,La:9,Ti:11};
+/* Ascending broken thirds by scale degree:
+   1.3.2.4.3.5.4.6.5.7.6.8.7.9.7.8
+   Major-scale semitone offsets from movable-Do base:
+   0,4,2,5,4,7,5,9,7,11,9,12,11,14,11,12
+*/
+const WARMUP_ASC_OFFSETS = [0,4,2,5,4,7,5,9,7,11,9,12,11,14,11,12];
 
 function playWarmup(){
-  if(typeof tonic === "undefined") return;
+  if (typeof tonic === "undefined" || typeof triggerKey !== "function") return;
 
   const base = 60 + tonic;
   let delay = 0;
   const step = 1000; // 60 BPM
+  const hold = 850;
 
-  let prevDeg = -1;
-  let octave = 0;
+  WARMUP_ASC_OFFSETS.forEach((offset) => {
+    const midi = base + offset;
 
-  WARMUP_ASC.forEach(syl=>{
-
-    const deg = DEG[syl];
-
-    if(prevDeg !== -1 && deg < prevDeg){
-      octave += 12;
-    }
-
-    const midi = base + deg + octave;
-
-    setTimeout(()=>{
-      if(typeof triggerKey === "function"){
-        triggerKey(midi,true);
-        setTimeout(()=>triggerKey(midi,false),700);
-      }
+    setTimeout(() => {
+      triggerKey(midi, true);
+      setTimeout(() => {
+        triggerKey(midi, false);
+      }, hold);
     }, delay);
 
     delay += step;
-    prevDeg = deg;
-
   });
 }
 
-window.addEventListener("DOMContentLoaded", ()=>{
+window.addEventListener("DOMContentLoaded", () => {
   const controls = document.querySelector(".controls");
-  if(!controls) return;
+  if (!controls) return;
 
   const btn = document.createElement("button");
+  btn.id = "warmupBtn";
   btn.textContent = "Broken Thirds Warm-up";
-  btn.onclick = playWarmup;
   btn.style.marginLeft = "8px";
+  btn.addEventListener("click", playWarmup);
 
   controls.appendChild(btn);
 });
