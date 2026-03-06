@@ -2506,68 +2506,6 @@ function forceAccidentalsBoth(){
 })();
 /* === End DO background-position-y fix === */
 
-
-/* ===== Choir Warm‑up: Broken Thirds ===== */
-
-const WARMUP_ASC = [
-"Do","Mi","Re","Fa","Mi","Sol","Fa","La","Sol","Ti","La","Do","Ti","Re","Do"
-];
-
-const SOLFEGE_TO_DEGREE = {
-  Do:0, Re:2, Mi:4, Fa:5, Sol:7, La:9, Ti:11
-};
-
-function solfegeToMidi(syl, baseMidi){
-  return baseMidi + SOLFEGE_TO_DEGREE[syl];
-}
-
-function playWarmup(pattern){
-
-  const baseMidi = 60 + tonic;
-
-  let delay = 0;
-  const step = 450;
-
-  pattern.forEach((syl)=>{
-
-    const midi = solfegeToMidi(syl, baseMidi);
-
-    setTimeout(()=>{
-
-      if (typeof triggerKey === "function") {
-        triggerKey(midi,true);
-        setTimeout(()=>triggerKey(midi,false),300);
-      }
-
-    },delay);
-
-    delay += step;
-
-  });
-
-}
-
-/* create visible button in controls bar */
-window.addEventListener("DOMContentLoaded", ()=>{
-
-  const controls = document.querySelector(".controls");
-  if(!controls) return;
-
-  const btn = document.createElement("button");
-  btn.id = "warmupBtn";
-  btn.textContent = "Broken Thirds Warm‑up";
-  btn.style.marginLeft = "8px";
-
-  btn.addEventListener("click", ()=>{
-    playWarmup(WARMUP_ASC);
-  });
-
-  controls.appendChild(btn);
-
-});
-
-/* ===== End Warm‑up ===== */
-
 </script>
 
 <div class="hands-live" id="handsLive" aria-label="Hand sign display">
@@ -2857,6 +2795,50 @@ window.addEventListener("DOMContentLoaded", ()=>{
       return w;
     }
   };
+})();
+</script>
+
+
+<!-- Choir Warm-up Button -->
+<script>
+(function(){
+const WARMUP_ASC = [
+"Do","Mi","Re","Fa","Mi","Sol","Fa","La","Sol","Ti","La","Do","Ti","Re","Do"
+];
+
+const DEG = {Do:0,Re:2,Mi:4,Fa:5,Sol:7,La:9,Ti:11};
+
+function solfegeToMidi(syl, base){ return base + DEG[syl]; }
+
+function playWarmup(){
+  if(typeof tonic === "undefined") return;
+  const base = 60 + tonic;
+  let delay = 0;
+  const step = 450;
+
+  WARMUP_ASC.forEach(syl=>{
+    const midi = solfegeToMidi(syl, base);
+    setTimeout(()=>{
+      if(typeof triggerKey === "function"){
+        triggerKey(midi,true);
+        setTimeout(()=>triggerKey(midi,false),300);
+      }
+    }, delay);
+    delay += step;
+  });
+}
+
+window.addEventListener("DOMContentLoaded", ()=>{
+  const controls = document.querySelector(".controls");
+  if(!controls) return;
+
+  const btn = document.createElement("button");
+  btn.textContent = "Broken Thirds Warm-up";
+  btn.onclick = playWarmup;
+  btn.style.marginLeft = "8px";
+
+  controls.appendChild(btn);
+});
 })();
 </script>
 
