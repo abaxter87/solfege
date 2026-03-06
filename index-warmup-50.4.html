@@ -2801,50 +2801,47 @@ function forceAccidentalsBoth(){
 
 <script>
 (function () {
-  // Ascending broken-thirds pattern:
   // 1.3.2.4.3.5.4.6.5.7.6.8.7.9.7.8
   const OFFSETS = [0, 4, 2, 5, 4, 7, 5, 9, 7, 11, 9, 12, 11, 14, 11, 12];
   const STEP_MS = 1000; // 60 BPM
   const HOLD_MS = 850;
 
-  function keyElForMidi(midi) {
+  function getKeyEl(midi) {
     return document.querySelector('[data-midi="' + midi + '"]');
   }
 
-  function pressRenderedKey(midi) {
-    const el = keyElForMidi(midi);
+  function fireHandDown(el, midi) {
     if (!el) return;
-
-    if (window.PointerEvent) {
-      const down = new PointerEvent("pointerdown", {
-        bubbles: true,
-        pointerId: 1000 + midi,
-        pointerType: "mouse",
-        button: 0,
-        isPrimary: true
-      });
-      el.dispatchEvent(down);
-
-      setTimeout(function () {
-        const up = new PointerEvent("pointerup", {
+    try {
+      if (window.PointerEvent) {
+        el.dispatchEvent(new PointerEvent("pointerdown", {
           bubbles: true,
-          pointerId: 1000 + midi,
+          pointerId: 5000 + midi,
           pointerType: "mouse",
           button: 0,
           isPrimary: true
-        });
-        el.dispatchEvent(up);
-      }, HOLD_MS);
-      return;
-    }
+        }));
+      } else {
+        el.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+      }
+    } catch (e) {}
+  }
 
-    const down = new MouseEvent("mousedown", { bubbles: true, button: 0 });
-    el.dispatchEvent(down);
-
-    setTimeout(function () {
-      const up = new MouseEvent("mouseup", { bubbles: true, button: 0 });
-      el.dispatchEvent(up);
-    }, HOLD_MS);
+  function fireHandUp(el, midi) {
+    if (!el) return;
+    try {
+      if (window.PointerEvent) {
+        el.dispatchEvent(new PointerEvent("pointerup", {
+          bubbles: true,
+          pointerId: 5000 + midi,
+          pointerType: "mouse",
+          button: 0,
+          isPrimary: true
+        }));
+      } else {
+        el.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
+      }
+    } catch (e) {}
   }
 
   async function playWarmup() {
@@ -2854,14 +2851,36 @@ function forceAccidentalsBoth(){
       }
     } catch (e) {}
 
-    const base = 60 + tonic;
+    const base = 60 + (typeof tonic !== "undefined" ? tonic : 0);
     let delay = 0;
 
     OFFSETS.forEach(function (offset) {
       const midi = base + offset;
+
       setTimeout(function () {
-        pressRenderedKey(midi);
+        const el = getKeyEl(midi);
+
+        // 1) real app audio + visual path
+        if (typeof window.triggerKey === "function") {
+          window.triggerKey(midi, true);
+        } else if (typeof triggerKey === "function") {
+          triggerKey(midi, true);
+        }
+
+        // 2) real hand-sign listener path
+        fireHandDown(el, midi);
+
+        setTimeout(function () {
+          if (typeof window.triggerKey === "function") {
+            window.triggerKey(midi, false);
+          } else if (typeof triggerKey === "function") {
+            triggerKey(midi, false);
+          }
+          fireHandUp(el, midi);
+        }, HOLD_MS);
+
       }, delay);
+
       delay += STEP_MS;
     });
   }
@@ -2869,6 +2888,8 @@ function forceAccidentalsBoth(){
   window.addEventListener("load", function () {
     const controls = document.querySelector(".controls");
     if (!controls) return;
+
+    if (document.getElementById("warmupBtn")) return;
 
     const btn = document.createElement("button");
     btn.id = "warmupBtn";
