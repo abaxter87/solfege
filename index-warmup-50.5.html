@@ -2800,106 +2800,54 @@ function forceAccidentalsBoth(){
 
 
 <script>
-(function () {
-  // 1.3.2.4.3.5.4.6.5.7.6.8.7.9.7.8
-  const OFFSETS = [0, 4, 2, 5, 4, 7, 5, 9, 7, 11, 9, 12, 11, 14, 11, 12];
-  const STEP_MS = 1000; // 60 BPM
-  const HOLD_MS = 850;
+(function(){
 
-  function getKeyEl(midi) {
-    return document.querySelector('[data-midi="' + midi + '"]');
-  }
+const OFFSETS=[0,4,2,5,4,7,5,9,7,11,9,12,11,14,11,12]; // 1.3.2.4.3.5.4.6.5.7.6.8.7.9.7.8
+const STEP=1000; // 60 BPM
+const HOLD=850;
 
-  function fireHandDown(el, midi) {
-    if (!el) return;
-    try {
-      if (window.PointerEvent) {
-        el.dispatchEvent(new PointerEvent("pointerdown", {
-          bubbles: true,
-          pointerId: 5000 + midi,
-          pointerType: "mouse",
-          button: 0,
-          isPrimary: true
-        }));
-      } else {
-        el.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
-      }
-    } catch (e) {}
-  }
+function pressKey(midi,pid){
+  const el=document.querySelector('[data-midi="'+midi+'"]');
+  if(!el) return;
 
-  function fireHandUp(el, midi) {
-    if (!el) return;
-    try {
-      if (window.PointerEvent) {
-        el.dispatchEvent(new PointerEvent("pointerup", {
-          bubbles: true,
-          pointerId: 5000 + midi,
-          pointerType: "mouse",
-          button: 0,
-          isPrimary: true
-        }));
-      } else {
-        el.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
-      }
-    } catch (e) {}
-  }
+  const down=new PointerEvent('pointerdown',{bubbles:true,pointerId:pid,pointerType:'mouse',button:0,isPrimary:true});
+  el.dispatchEvent(down);
 
-  async function playWarmup() {
-    try {
-      if (typeof unlockAudio === "function") {
-        await unlockAudio();
-      }
-    } catch (e) {}
+  setTimeout(()=>{
+    const up=new PointerEvent('pointerup',{bubbles:true,pointerId:pid,pointerType:'mouse',button:0,isPrimary:true});
+    el.dispatchEvent(up);
+  },HOLD);
+}
 
-    const base = 60 + (typeof tonic !== "undefined" ? tonic : 0);
-    let delay = 0;
+function playWarmup(){
+  if(typeof unlockAudio==='function') unlockAudio();
 
-    OFFSETS.forEach(function (offset) {
-      const midi = base + offset;
+  const base=60+(typeof tonic!=='undefined'?tonic:0);
+  let delay=0;
+  let pid=9000;
 
-      setTimeout(function () {
-        const el = getKeyEl(midi);
-
-        // 1) real app audio + visual path
-        if (typeof window.triggerKey === "function") {
-          window.triggerKey(midi, true);
-        } else if (typeof triggerKey === "function") {
-          triggerKey(midi, true);
-        }
-
-        // 2) real hand-sign listener path
-        fireHandDown(el, midi);
-
-        setTimeout(function () {
-          if (typeof window.triggerKey === "function") {
-            window.triggerKey(midi, false);
-          } else if (typeof triggerKey === "function") {
-            triggerKey(midi, false);
-          }
-          fireHandUp(el, midi);
-        }, HOLD_MS);
-
-      }, delay);
-
-      delay += STEP_MS;
-    });
-  }
-
-  window.addEventListener("load", function () {
-    const controls = document.querySelector(".controls");
-    if (!controls) return;
-
-    if (document.getElementById("warmupBtn")) return;
-
-    const btn = document.createElement("button");
-    btn.id = "warmupBtn";
-    btn.type = "button";
-    btn.textContent = "Broken Thirds Warm-up";
-    btn.style.marginLeft = "8px";
-    btn.addEventListener("click", playWarmup);
-
-    controls.appendChild(btn);
+  OFFSETS.forEach(off=>{
+    const midi=base+off;
+    setTimeout(()=>pressKey(midi,pid++),delay);
+    delay+=STEP;
   });
+}
+
+window.addEventListener("load",()=>{
+  const controls=document.querySelector(".controls");
+  if(!controls) return;
+
+  const btn=document.createElement("button");
+  btn.id="warmupBtn";
+  btn.textContent="Broken Thirds Warm-up";
+  btn.type="button";
+  btn.style.marginLeft="8px";
+  btn.style.padding="6px 18px";
+  btn.onclick=playWarmup;
+
+  controls.appendChild(btn);
+});
+
 })();
 </script>
 
