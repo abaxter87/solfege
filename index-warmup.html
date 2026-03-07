@@ -1274,17 +1274,28 @@ let pendingMidi = null;
 async function unlockAudio() {
   const ac = getCtx();
   try {
-    if (ac.state === 'suspended') await ac.resume();
+    if (ac.state === 'suspended' || ac.state === 'interrupted') {
+      await ac.resume();
+    }
+
+    // iPhone/Safari can require a real audio node to start once after resume.
+    const buffer = ac.createBuffer(1, 1, ac.sampleRate || 44100);
+    const source = ac.createBufferSource();
+    const gain = ac.createGain();
+    gain.gain.value = 0.00001;
+    source.buffer = buffer;
+    source.connect(gain);
+    gain.connect(ac.destination);
+    source.start(0);
   } catch (e) {
-    // iOS may block resume unless inside a user gesture; that's ok.
+    // leave audioReady false if resume/unlock is blocked
   }
+
   audioReady = (ac.state === 'running');
 
-  // If we became ready, play only the most recent queued note (prevents cacophony).
   if (audioReady && pendingMidi !== null) {
     const m = pendingMidi;
     pendingMidi = null;
-    // Call playNote again now that audio is running.
     playNote(m);
   }
   return audioReady;
@@ -1392,37 +1403,36 @@ function playNote(midi) {
     unlockAudio();
     return;
   }
+
+  const now = ac.currentTime;
   const freq = 440 * Math.pow(2, (midi - 69) / 12);
-  
-  const osc = ac.createOscillator();
+
+  const osc1 = ac.createOscillator();
+  const osc2 = ac.createOscillator();
   const gain = ac.createGain();
   const comp = ac.createDynamicsCompressor();
-  
-  osc.type = 'triangle';
-  osc.frequency.setValueAtTime(freq, ac.currentTime);
-  
-  // Add slight harmonic
-  const osc2 = ac.createOscillator();
-  const gain2 = ac.createGain();
-  osc2.type = 'sine';
-  osc2.frequency.setValueAtTime(freq * 2, ac.currentTime);
-  gain2.gain.setValueAtTime(0.08, ac.currentTime);
-  osc2.connect(gain2);
-  gain2.connect(gain);
 
-  gain.gain.setValueAtTime(0, ac.currentTime);
-  gain.gain.linearRampToValueAtTime(0.28, ac.currentTime + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 1.8);
-  
+  osc1.type = 'triangle';
+  osc2.type = 'sine';
+
+  osc1.frequency.setValueAtTime(freq, now);
+  osc2.frequency.setValueAtTime(freq * 2, now);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.30, now + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+
+  osc1.connect(gain);
+  osc2.connect(gain);
   gain.connect(comp);
   comp.connect(ac.destination);
-  osc.connect(gain);
-  osc.start();
-  osc2.start();
-  osc.stop(ac.currentTime + 1.9);
-  osc2.stop(ac.currentTime + 1.9);
-  
-  activeOscillators[midi] = { osc, gain, osc2, gain2 };
+
+  osc1.start(now);
+  osc2.start(now);
+  osc1.stop(now + 1.45);
+  osc2.stop(now + 1.45);
+
+  activeOscillators[midi] = { osc1, osc2, gain };
 }
 
 function stopNote(midi) {
@@ -2799,50 +2809,183 @@ function forceAccidentalsBoth(){
 </script>
 
 
-<!-- Choir Warm-up Button -->
+
+
 <script>
 (function(){
-/* Ascending broken thirds by scale degree:
-   1.3.2.4.3.5.4.6.5.7.6.8.7.9.7.8
-   Major-scale semitone offsets from movable-Do base:
-   0,4,2,5,4,7,5,9,7,11,9,12,11,14,11,12
-*/
-const WARMUP_ASC_OFFSETS = [0,4,2,5,4,7,5,9,7,11,9,12,11,14,11,12];
+  const BEAT = 1000;
+  const SHORT_HOLD = 800;
+  const LONG_HOLD = 3000;
+  const ASC = [0,4,2,5,4,7,5,9,7,11,9,12,11,14,12];
+  const DESC = [12,9,11,7,9,5,7,4,5,2,4,0,2,-1,0];
 
-function playWarmup(){
-  if (typeof tonic === "undefined" || typeof triggerKey !== "function") return;
+  let warmupRunning = false;
+  let warmupTimers = [];
+  let activeWarmupKeys = [];
 
-  const base = 60 + tonic;
-  let delay = 0;
-  const step = 1000; // 60 BPM
-  const hold = 850;
+  function clearWarmupTimers(){
+    warmupTimers.forEach(id => clearTimeout(id));
+    warmupTimers = [];
+  }
 
-  WARMUP_ASC_OFFSETS.forEach((offset) => {
-    const midi = base + offset;
+  function releaseWarmupKeys(){
+    activeWarmupKeys.forEach(({el, pointerId}) => {
+      try{
+        if (!el) return;
+        if (window.PointerEvent) {
+          const up = new PointerEvent('pointerup', {
+            bubbles: true,
+            pointerId: pointerId,
+            pointerType: 'mouse',
+            button: 0,
+            isPrimary: true
+          });
+          el.dispatchEvent(up);
+        } else {
+          const up = new MouseEvent('mouseup', { bubbles: true, button: 0 });
+          el.dispatchEvent(up);
+        }
+      } catch(e) {}
+      try { el.classList.remove('active'); } catch(e) {}
+    });
+    activeWarmupKeys = [];
+  }
 
-    setTimeout(() => {
-      triggerKey(midi, true);
-      setTimeout(() => {
-        triggerKey(midi, false);
-      }, hold);
+  function stopWarmup(){
+    warmupRunning = false;
+    clearWarmupTimers();
+    releaseWarmupKeys();
+    try { pendingMidi = null; } catch(e) {}
+  }
+
+  function queue(fn, delay){
+    const id = setTimeout(() => {
+      if (!warmupRunning) return;
+      fn();
     }, delay);
+    warmupTimers.push(id);
+    return id;
+  }
 
-    delay += step;
+  function pressRenderedKey(midi, hold, pointerId){
+    const el = document.querySelector('[data-midi="' + midi + '"]');
+    if (!el) return;
+
+    if (window.PointerEvent) {
+      const down = new PointerEvent('pointerdown', {
+        bubbles: true,
+        pointerId: pointerId,
+        pointerType: 'mouse',
+        button: 0,
+        isPrimary: true
+      });
+      el.dispatchEvent(down);
+
+      activeWarmupKeys.push({el, pointerId});
+
+      queue(() => {
+        try{
+          const up = new PointerEvent('pointerup', {
+            bubbles: true,
+            pointerId: pointerId,
+            pointerType: 'mouse',
+            button: 0,
+            isPrimary: true
+          });
+          el.dispatchEvent(up);
+        } catch(e) {}
+        activeWarmupKeys = activeWarmupKeys.filter(k => !(k.el === el && k.pointerId === pointerId));
+      }, hold);
+    } else {
+      const down = new MouseEvent('mousedown', { bubbles: true, button: 0 });
+      el.dispatchEvent(down);
+
+      activeWarmupKeys.push({el, pointerId});
+
+      queue(() => {
+        try{
+          const up = new MouseEvent('mouseup', { bubbles: true, button: 0 });
+          el.dispatchEvent(up);
+        } catch(e) {}
+        activeWarmupKeys = activeWarmupKeys.filter(k => !(k.el === el && k.pointerId === pointerId));
+      }, hold);
+    }
+  }
+
+  function resumeAudioNow(){
+    try{
+      if (typeof unlockAudio === 'function') unlockAudio();
+    } catch(e) {}
+    try{
+      if (typeof getCtx === 'function'){
+        const ac = getCtx();
+        if (ac && ac.state !== 'running' && ac.resume) ac.resume();
+      }
+    } catch(e) {}
+  }
+
+  function playWarmup(){
+    stopWarmup();
+    resumeAudioNow();
+
+    const baseMidi = 60 + (typeof tonic !== 'undefined' ? tonic : 0);
+    let t = 0;
+    let pid = 7000;
+    warmupRunning = true;
+
+    ASC.forEach((off, i) => {
+      const midi = baseMidi + off;
+      const hold = (i === ASC.length - 1) ? LONG_HOLD : SHORT_HOLD;
+      const thisPid = pid++;
+      queue(() => pressRenderedKey(midi, hold, thisPid), t);
+      t += BEAT;
+    });
+
+    t += LONG_HOLD - BEAT;
+    t += BEAT;
+
+    DESC.forEach((off) => {
+      const midi = baseMidi + off;
+      const thisPid = pid++;
+      queue(() => pressRenderedKey(midi, SHORT_HOLD, thisPid), t);
+      t += BEAT;
+    });
+
+    queue(() => { stopWarmup(); }, t + SHORT_HOLD + 50);
+  }
+
+  window.stopWarmup = stopWarmup;
+  window.playWarmup = playWarmup;
+
+  // Resume audio on any fresh interaction after Safari suspends it.
+  ['pointerdown','touchstart','mousedown','keydown'].forEach(evt => {
+    window.addEventListener(evt, resumeAudioNow, { passive: true });
   });
-}
 
-window.addEventListener("DOMContentLoaded", () => {
-  const controls = document.querySelector(".controls");
-  if (!controls) return;
+  // Stop warm-up when page/app is backgrounded; resume audio when visible again.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopWarmup();
+      try{
+        if (typeof getCtx === 'function'){
+          const ac = getCtx();
+          if (ac && ac.state === 'running' && ac.suspend) ac.suspend();
+        }
+      } catch(e) {}
+    } else {
+      resumeAudioNow();
+    }
+  });
 
-  const btn = document.createElement("button");
-  btn.id = "warmupBtn";
-  btn.textContent = "Broken Thirds Warm-up";
-  btn.style.marginLeft = "8px";
-  btn.addEventListener("click", playWarmup);
+  window.addEventListener('pagehide', stopWarmup);
+  window.addEventListener('blur', () => {
+    if (document.hidden) stopWarmup();
+  });
 
-  controls.appendChild(btn);
-});
+  window.addEventListener('load', () => {
+    const btn = document.getElementById('warmupBtn');
+    if (btn) btn.onclick = playWarmup;
+  });
 })();
 </script>
 
