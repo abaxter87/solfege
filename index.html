@@ -314,6 +314,8 @@
   border: 1px solid rgba(255,255,255,0.10);
   border-radius: 10px;
 }
+#keySigBass .acc{font-size:18px;}
+
 #keySigTreble .staff-line, #keySigBass .staff-line{ stroke: rgba(255,255,255,0.38); stroke-width: 1.2; shape-rendering: crispEdges; }
 #keySigTreble .clef, #keySigBass .clef{ fill: rgba(255,255,255,0.80); font-size: 54px; font-family: "Times New Roman", serif; }
 #keySigTreble .acc, #keySigBass .acc{ fill: rgba(255,255,255,0.85); font-size: 16px; font-family: "Times New Roman", serif; dominant-baseline: middle; text-anchor: middle; }
@@ -494,62 +496,8 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 }
 
 
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  /* Do NOT rely on height:100% (parent often only has min-height). */
-  min-height: 240px;       /* matches #handsLiveContent stable sizing */
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;            /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: auto;            /* allow natural aspect ratio */
-  max-height: 100%;
-  display:block;
-}
-
-/* Mini (landscape) note staff: use the mini box's own height (don't force 240px). */
-#handMini .note-staff-wrap{
-  min-height: 0;
-  height: 100%;
-  padding: 4px;
-}
-#handMini .note-staff-svg{
-  height: 100%;
-  width: 100%;
-  object-fit: contain;
-}
-
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
+@media (orientation: landscape) {
+  .keysig-row::before{ content: ""; display:none; }
 }
 
 </style>
@@ -594,50 +542,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   box-shadow: none !important;
 }
 
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
-}
-
 </style>
 
 
@@ -671,50 +575,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-}
-
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
 }
 
 </style>
@@ -773,50 +633,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-}
-
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
 }
 
 </style>
@@ -878,50 +694,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   box-shadow: none !important;
 }
 
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
-}
-
 </style>
 
 
@@ -962,50 +734,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-}
-
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
 }
 
 </style>
@@ -1055,50 +783,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   box-shadow: none !important;
 }
 
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
-}
-
 </style>
 
 
@@ -1132,50 +816,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   box-shadow: none !important;
 }
 
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
-}
-
 </style>
 
 
@@ -1184,18 +824,14 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 
 /* Bass clef slightly smaller */
 #keySigBass .clef,
-#bassKeySig .clef,
-#keySigBass text,
-#bassKeySig text {
+#bassKeySig .clef {
   transform: scale(0.84);
   transform-origin: left center;
 }
 
 /* Treble clef slightly larger for visual parity */
 #keySigTreble .clef,
-#trebleKeySig .clef,
-#keySigTreble text,
-#trebleKeySig text {
+#trebleKeySig .clef {
   transform: scale(1.04);
   transform-origin: left center;
 }
@@ -1222,50 +858,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-}
-
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
 }
 
 </style>
@@ -1340,50 +932,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   box-shadow: none !important;
 }
 
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
-}
-
 </style>
 
 
@@ -1418,50 +966,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-}
-
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
 }
 
 </style>
@@ -1529,50 +1033,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-}
-
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
 }
 
 </style>
@@ -1655,50 +1115,6 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   box-shadow: none !important;
 }
 
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
-}
-
 </style>
 
 
@@ -1717,62 +1133,25 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   display: block;
 }
 
+
+/* Slightly reduce the rendered staff in the large (portrait) box so high notes fit better */
+#handsLiveContent .note-staff-wrap{
+  transform: scale(0.92);
+  transform-origin: center;
+}
+
 /* Mini: hide syllable label when in note mode to free horizontal space */
-.hand-mini.note-mode #handMiniLab{
+#handMini.note-mode #handMiniLab{
   display:none !important;
 }
 /* Mini: hide the img when in note mode */
-.hand-mini.note-mode #handMiniImg{
+#handMini.note-mode #handMiniImg{
   display:none !important;
 }
 /* Mini: show staff wrap when in note mode */
-.hand-mini:not(.note-mode) .note-staff-wrap{
+#handMini:not(.note-mode) .note-staff-wrap{
   display:none !important;
 }
-
-/* === Note-on-staff rendering tweaks === */
-.note-staff-wrap{
-  width: 100%;
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 6px;           /* breathing room so SVG never touches edges */
-  box-sizing: border-box;
-}
-.note-staff-svg{
-  width: 100%;
-  height: 100%;
-  display:block;
-}
-
-/* Prevent mini placeholder text from covering the staff SVG in note mode */
-#handMini.note-mode::after{
-  content:"";
-  display:none !important;
-}
-
-/* Keep mini label width stable so the holder doesn't "wiggle" on different syllables */
-#handMiniLab{
-  min-width: 48px;
-  text-align: left;
-}
-
-/* Give the mini hand image a little inset so it never touches top/bottom edges */
-@media (orientation: landscape){
-  #handMiniImg{
-    padding: 4px;
-    box-sizing: border-box;
-  }
-}
-
-/* Keep portrait hand panel from being full-width on initial load (prevents layout jump) */
-#handsLive{
-  width: min(720px, 92vw);
-  margin-left: auto;
-  margin-right: auto;
-}
-
 </style>
 
 </head>
@@ -1785,32 +1164,39 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   <label>Tonic (Do):
     <select id="tonicSelect">
       <optgroup label="Major keys">
-      <option value="C:maj">C Major</option>
-      <option value="C#:maj">C# Major</option>
-      <option value="D:maj">D Major</option>
-      <option value="Eb:maj">Eb Major</option>
-      <option value="E:maj">E Major</option>
-      <option value="F:maj">F Major</option>
-      <option value="F#:maj">F# Major</option>
-      <option value="G:maj">G Major</option>
-      <option value="Ab:maj">Ab Major</option>
-      <option value="A:maj">A Major</option>
-      <option value="Bb:maj">Bb Major</option>
-      <option value="B:maj">B Major</option>
+        <option value="C:maj">C Major</option>
+        <option value="C#:maj">C# Major</option>
+        <option value="Db:maj">Db Major</option>
+        <option value="D:maj">D Major</option>
+        <option value="Eb:maj">Eb Major</option>
+        <option value="E:maj">E Major</option>
+        <option value="F:maj">F Major</option>
+        <option value="F#:maj">F# Major</option>
+        <option value="Gb:maj">Gb Major</option>
+        <option value="G:maj">G Major</option>
+        <option value="Ab:maj">Ab Major</option>
+        <option value="A:maj">A Major</option>
+        <option value="Bb:maj">Bb Major</option>
+        <option value="B:maj">B Major</option>
+        <option value="Cb:maj">Cb Major</option>
       </optgroup>
+
       <optgroup label="Minor keys">
-      <option value="A:min">A Minor</option>
-      <option value="Bb:min">Bb Minor</option>
-      <option value="B:min">B Minor</option>
-      <option value="C:min">C Minor</option>
-      <option value="C#:min">C# Minor</option>
-      <option value="D:min">D Minor</option>
-      <option value="Eb:min">Eb Minor</option>
-      <option value="E:min">E Minor</option>
-      <option value="F:min">F Minor</option>
-      <option value="F#:min">F# Minor</option>
-      <option value="G:min">G Minor</option>
-      <option value="Ab:min">Ab Minor</option>
+        <option value="A:min">A Minor</option>
+        <option value="A#:min">A# Minor</option>
+        <option value="Bb:min">Bb Minor</option>
+        <option value="B:min">B Minor</option>
+        <option value="C:min">C Minor</option>
+        <option value="C#:min">C# Minor</option>
+        <option value="D:min">D Minor</option>
+        <option value="D#:min">D# Minor</option>
+        <option value="Eb:min">Eb Minor</option>
+        <option value="E:min">E Minor</option>
+        <option value="F:min">F Minor</option>
+        <option value="F#:min">F# Minor</option>
+        <option value="G:min">G Minor</option>
+        <option value="G#:min">G# Minor</option>
+        <option value="Ab:min">Ab Minor</option>
       </optgroup>
     </select>
   </label>
@@ -1852,7 +1238,7 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 </svg>
   </div>
         <div id="handMiniHolder" aria-hidden="true">
-          <div id="handMini" aria-label="Hand sign (mini)">
+          <div id="handMini" class="hand-mini" aria-label="Hand sign (mini)">
             <img id="handMiniImg" class="hand-mini-img" alt="Hand sign" />
           </div>
           <div id="handMiniLab" class="hand-mini-label">Do</div>
@@ -1888,17 +1274,28 @@ let pendingMidi = null;
 async function unlockAudio() {
   const ac = getCtx();
   try {
-    if (ac.state === 'suspended') await ac.resume();
+    if (ac.state === 'suspended' || ac.state === 'interrupted') {
+      await ac.resume();
+    }
+
+    // iPhone/Safari can require a real audio node to start once after resume.
+    const buffer = ac.createBuffer(1, 1, ac.sampleRate || 44100);
+    const source = ac.createBufferSource();
+    const gain = ac.createGain();
+    gain.gain.value = 0.00001;
+    source.buffer = buffer;
+    source.connect(gain);
+    gain.connect(ac.destination);
+    source.start(0);
   } catch (e) {
-    // iOS may block resume unless inside a user gesture; that's ok.
+    // leave audioReady false if resume/unlock is blocked
   }
+
   audioReady = (ac.state === 'running');
 
-  // If we became ready, play only the most recent queued note (prevents cacophony).
   if (audioReady && pendingMidi !== null) {
     const m = pendingMidi;
     pendingMidi = null;
-    // Call playNote again now that audio is running.
     playNote(m);
   }
   return audioReady;
@@ -2006,37 +1403,36 @@ function playNote(midi) {
     unlockAudio();
     return;
   }
+
+  const now = ac.currentTime;
   const freq = 440 * Math.pow(2, (midi - 69) / 12);
-  
-  const osc = ac.createOscillator();
+
+  const osc1 = ac.createOscillator();
+  const osc2 = ac.createOscillator();
   const gain = ac.createGain();
   const comp = ac.createDynamicsCompressor();
-  
-  osc.type = 'triangle';
-  osc.frequency.setValueAtTime(freq, ac.currentTime);
-  
-  // Add slight harmonic
-  const osc2 = ac.createOscillator();
-  const gain2 = ac.createGain();
-  osc2.type = 'sine';
-  osc2.frequency.setValueAtTime(freq * 2, ac.currentTime);
-  gain2.gain.setValueAtTime(0.08, ac.currentTime);
-  osc2.connect(gain2);
-  gain2.connect(gain);
 
-  gain.gain.setValueAtTime(0, ac.currentTime);
-  gain.gain.linearRampToValueAtTime(0.28, ac.currentTime + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 1.8);
-  
+  osc1.type = 'triangle';
+  osc2.type = 'sine';
+
+  osc1.frequency.setValueAtTime(freq, now);
+  osc2.frequency.setValueAtTime(freq * 2, now);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.30, now + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+
+  osc1.connect(gain);
+  osc2.connect(gain);
   gain.connect(comp);
   comp.connect(ac.destination);
-  osc.connect(gain);
-  osc.start();
-  osc2.start();
-  osc.stop(ac.currentTime + 1.9);
-  osc2.stop(ac.currentTime + 1.9);
-  
-  activeOscillators[midi] = { osc, gain, osc2, gain2 };
+
+  osc1.start(now);
+  osc2.start(now);
+  osc1.stop(now + 1.45);
+  osc2.stop(now + 1.45);
+
+  activeOscillators[midi] = { osc1, osc2, gain };
 }
 
 function stopNote(midi) {
@@ -2323,11 +1719,23 @@ const FLAT_ORDER  = ['B','E','A','D','G','C','F'];
   Y positions for key-signature accidentals on a treble staff.
   Staff lines are at y = 18, 26, 34, 42, 50 (top to bottom).
 */
-const SHARP_Y = [17, 29, 21, 25, 37, 49, 33]; // F C G D A E B (treble positions)
-const FLAT_Y  = [33, 21, 37, 25, 41, 29, 17]; // B E A D G C F (treble positions) // B E A D G C F (order)
-/* Bass clef key-signature positions (approx. standard engraving layout). */
-const BASS_SHARP_Y = [26, 38, 30, 42, 34, 46, 26]; // F C G D A E B (bass positions)
-const BASS_FLAT_Y  = [42, 30, 46, 34, 50, 38, 26]; // B E A D G C F (bass positions)
+const SHARP_Y = [18, 30, 14, 26, 38, 22, 34]; // F C G D A E B (treble positions)
+// Treble clef key-signature flats (order: Bb, Eb, Ab, Db, Gb, Cb, Fb).
+// Fb must sit on the top line (F) — i.e., y=18 for this staff.
+const FLAT_Y  = [33, 21, 37, 25, 41, 29, 18];
+/*
+  Bass clef key-signature positions (standard engraving).
+  Staff lines are at y = 18, 26, 34, 42, 50 (top → bottom).
+
+  Bass staff note names (bottom → top):
+    Lines:  G(50), B(42), D(34), F(26), A(18)
+    Spaces: A(46), C(38), E(30), G(22)
+
+  Sharps order: F C G D A E B
+  Flats  order: B E A D G C F
+*/
+const BASS_SHARP_Y = [26, 38, 22, 34, 46, 30, 42]; // F C G D A E B
+const BASS_FLAT_Y  = [42, 30, 46, 34, 50, 38, 26]; // B E A D G C F
 
 
 function updateKeySigPreview() {
@@ -2344,7 +1752,8 @@ function updateKeySigPreview() {
     }
 
     // Clef
-    const clef = svgEl('text', { x: 16, y: 55, class: 'clef' });
+    const clefY = (svg === keySigBass) ? 50 : 55;
+    const clef = svgEl('text', { x: 16, y: clefY, class: 'clef' });
     clef.textContent = clefGlyph;
     svg.appendChild(clef);
 
@@ -2364,13 +1773,52 @@ function updateKeySigPreview() {
       ? (accType === 'sharp' ? SHARP_Y : FLAT_Y)
       : (accType === 'sharp' ? BASS_SHARP_Y : BASS_FLAT_Y);
 
-    let x = 82; // after clef
+    // Place the whole key-signature group closer to the clef (not right-aligned).
+    // Keep it safely inside the staff box by slightly compressing spacing if needed.
+    const maxX = 168;          // right edge of the drawable area
+    // Start just after the clef, but if the treble label is long, push the accidentals right
+    // so they don't overlap the key name (e.g., C# Major, Gb Major).
+    let minStart = 56;
+    if (showLabel && svg === keySigTreble) {
+      // Keep accidentals from overlapping the key label, but avoid pushing them too far right.
+      // Prefer measured SVG text width when available; otherwise use a conservative estimate.
+      const labelEl = svg.querySelector('.keylabel');
+      let labelW = 0;
+      try {
+        if (labelEl && typeof labelEl.getComputedTextLength === 'function') {
+          labelW = labelEl.getComputedTextLength();
+        }
+      } catch (e) {}
+      if (!labelW) {
+        // Conservative estimate (px) tuned for the current font sizes.
+        labelW = (kd.label || '').length * 8.5;
+      }
+      minStart = Math.max(minStart, 12 + labelW + 10);
+    }
+    const maxSpacing = (count >= 6) ? 12 : 14;
+    const minSpacing = 10;
+
+    // Clamp start so the group doesn't hug/overflow the right edge.
+    if (count > 1) {
+      minStart = Math.min(minStart, maxX - (count - 1) * minSpacing);
+    } else {
+      minStart = Math.min(minStart, maxX - 2);
+    }
+
+    let spacing = maxSpacing;
+    if (count > 1) {
+      const available = maxX - minStart;
+      const needed = (count - 1) * spacing;
+      if (needed > available) spacing = Math.max(minSpacing, available / (count - 1));
+    }
+
+    let x = minStart;
     for (let i = 0; i < count; i++) {
       const y = yList[i];
       const t = svgEl('text', { x: x, y: y, class: 'acc' });
       t.textContent = glyph;
       svg.appendChild(t);
-      x += 14;
+      x += spacing;
     }
   };
 
@@ -2624,106 +2072,80 @@ const HAND_IMAGES = {
   }
 
   function makeStaffSVG(midi){
-    // Clamp displayed staff range for singing-friendly view (C2–C6).
-    // MIDI: C2=36, C6=84
-    const rawMidi = midi;
-    let clampFlag = 0; // -1 low, +1 high
-    if (midi < 36){ midi = 36; clampFlag = -1; }
-    if (midi > 84){ midi = 84; clampFlag = 1; }
+    // Limit staff rendering to C2–C6 (midi 36..84) so notes don't run off the staff.
+    if (midi < 36 || midi > 84) {
+      const spells = spellingsForMidi(midi);
+      const caption = (spells.length === 2) ? `${spells[0]} / ${spells[1]}` : `${spells[0]}`;
+      return `
+<svg class="note-staff-svg" viewBox="0 0 170 130" preserveAspectRatio="xMidYMid meet" aria-label="${caption}">
+  <text x="85" y="64" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="18" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial">${caption}</text>
+  <text x="85" y="88" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="11" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial">Outside C2–C6</text>
+</svg>`;
+    }
 
     const clef = clefForMidi(midi);
     const spells = spellingsForMidi(midi); // ['C#','Db'] or ['E']
     const octave = Math.floor(midi/12) - 1;
 
-    // Slightly smaller overall rendering so it fits better in the hand panels.
-    const SCALE = 0.88;
-
-    const bottomY = 70;                 // bottom staff line y (reference)
-    const step = 7 * SCALE;             // diatonic step height (line/space)
+    const bottomY = 92;      // bottom staff line y (more headroom for higher notes)
+    const step = 7;          // diatonic step height (slightly smaller staff so higher notes stay visible)
     const staffLeft = 18;
     const staffRight = 150;
 
     const clefChar = (clef === 'bass') ? '𝄢' : '𝄞';
 
-    // Note x positions (side-by-side for enharmonics) — increased spacing
-    const noteX0 = 94;
-    const noteX1 = 120;
+    // Note x positions (side-by-side for enharmonics)
+    const noteX0 = 90;
+    const noteX1 = 138; // wider separation for enharmonics
 
-    // Layout bounds inside the SVG viewBox we want to keep notes inside
-    const VIEW_H = 100;
-    const TOP_PAD = 10;
-    const BOT_PAD = 10;
-
-    const noteYs = [];
-    const noteMeta = [];
-
+    let noteSvgs = '';
     spells.forEach((sp, idx) => {
       const letter = letterForSpelling(sp);
       const pos = noteToPos(letter, octave, clef);
       const y = bottomY - (pos*step);
       const acc = accidentalForSpelling(sp);
       const x = (idx === 0) ? noteX0 : noteX1;
-      noteYs.push(y);
-      noteMeta.push({pos, y, acc, x});
-    });
-
-    let minY = Math.min(...noteYs);
-    let maxY = Math.max(...noteYs);
-
-    // Shift the entire staff group up/down so the noteheads stay in view.
-    // (Keeps the note visible even in higher octaves.)
-    let shiftY = 0;
-    if (minY < TOP_PAD) shiftY = TOP_PAD - minY;
-    if (maxY + shiftY > (VIEW_H - BOT_PAD)) shiftY += (VIEW_H - BOT_PAD) - (maxY + shiftY);
-
-    let noteSvgs = '';
-    noteMeta.forEach(({pos, y, acc, x}) => {
-      const yy = y + shiftY;
 
       // ledger lines
       ledgerLinesForPos(pos).forEach(lp => {
-        const ly = (bottomY - (lp*step)) + shiftY;
+        const ly = bottomY - (lp*step);
         noteSvgs += `<line x1="${x-14}" y1="${ly}" x2="${x+14}" y2="${ly}" stroke="rgba(255,255,255,0.85)" stroke-width="1.6" stroke-linecap="round"/>`;
       });
 
       // accidental
       if (acc){
-        noteSvgs += `<text x="${x-24}" y="${yy+5}" font-size="${20*SCALE}" fill="rgba(255,255,255,0.92)" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial">${acc}</text>`;
+        noteSvgs += `<text x="${x-22}" y="${y+5}" font-size="18" fill="rgba(255,255,255,0.92)" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial">${acc}</text>`;
       }
 
       // notehead
-      noteSvgs += `<ellipse cx="${x}" cy="${yy}" rx="${9.5*SCALE}" ry="${7*SCALE}" fill="rgba(255,255,255,0.92)" transform="rotate(-18 ${x} ${yy})"/>`;
+      noteSvgs += `<ellipse cx="${x}" cy="${y}" rx="9.5" ry="7" fill="rgba(255,255,255,0.92)" transform="rotate(-18 ${x} ${y})"/>`;
     });
 
-    // Caption (when showing both enharmonics)
-    const rawSpells = spellingsForMidi(rawMidi);
-    let caption = (rawSpells.length === 2) ? `${rawSpells[0]} / ${rawSpells[1]}` : `${rawSpells[0]}`;
-    if (clampFlag === -1) caption = `↓ ${caption}`;
-    if (clampFlag === 1)  caption = `↑ ${caption}`;
-    const capY = 88;
+    // Optional tiny caption (only when both)
+    const caption = (spells.length === 2) ? `${spells[0]} / ${spells[1]}` : `${spells[0]}`;
+    const capY = 118;
 
     return `
-<svg class="note-staff-svg" viewBox="0 0 170 100" preserveAspectRatio="xMidYMid meet" aria-label="Note on staff">
-  <g transform="translate(0 ${shiftY.toFixed(2)})">
-    <!-- staff lines -->
-    <g stroke="rgba(255,255,255,0.75)" stroke-width="1.6" stroke-linecap="round">
-      <line x1="${staffLeft}" y1="${bottomY}" x2="${staffRight}" y2="${bottomY}"/>
-      <line x1="${staffLeft}" y1="${bottomY-2*step}" x2="${staffRight}" y2="${bottomY-2*step}"/>
-      <line x1="${staffLeft}" y1="${bottomY-4*step}" x2="${staffRight}" y2="${bottomY-4*step}"/>
-      <line x1="${staffLeft}" y1="${bottomY-6*step}" x2="${staffRight}" y2="${bottomY-6*step}"/>
-      <line x1="${staffLeft}" y1="${bottomY-8*step}" x2="${staffRight}" y2="${bottomY-8*step}"/>
-    </g>
-
-    <!-- clef -->
-    <text x="28" y="${bottomY-1.2*step}" font-size="${44*SCALE}" fill="rgba(255,255,255,0.88)" font-family="serif">${clefChar}</text>
-
-    <!-- note(s) -->
-    ${noteSvgs}
+<svg class="note-staff-svg" viewBox="0 0 170 130" preserveAspectRatio="xMidYMid meet" aria-label="Note on staff">
+  <!-- staff lines -->
+  <g stroke="rgba(255,255,255,0.75)" stroke-width="1.6" stroke-linecap="round">
+    <line x1="${staffLeft}" y1="${bottomY}" x2="${staffRight}" y2="${bottomY}"/>
+    <line x1="${staffLeft}" y1="${bottomY-2*step}" x2="${staffRight}" y2="${bottomY-2*step}"/>
+    <line x1="${staffLeft}" y1="${bottomY-4*step}" x2="${staffRight}" y2="${bottomY-4*step}"/>
+    <line x1="${staffLeft}" y1="${bottomY-6*step}" x2="${staffRight}" y2="${bottomY-6*step}"/>
+    <line x1="${staffLeft}" y1="${bottomY-8*step}" x2="${staffRight}" y2="${bottomY-8*step}"/>
   </g>
 
-  <!-- caption (not shifted, so it stays anchored) -->
-  <text x="22" y="${capY}" font-size="${18*SCALE}" fill="rgba(255,255,255,0.70)"
-        font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-weight="700">${caption}</text>
+  <!-- clef -->
+  <text x="24" y="65" font-size="42" fill="rgba(255,255,255,0.92)"
+        font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial">${clefChar}</text>
+
+  <!-- notes -->
+  <g>${noteSvgs}</g>
+
+  <!-- caption -->
+  <text x="18" y="${capY}" font-size="12.5" fill="rgba(255,255,255,0.65)"
+        font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial">${caption}</text>
 </svg>`.trim();
   }
 
@@ -2765,7 +2187,7 @@ const HAND_IMAGES = {
     const base = baseFor(syl);
 
     // If user selected Note Names mode, render notation-on-staff instead of hand sign.
-    if (isNoteMode() && window.__noteStaff) {
+    if (typeof displayMode !== 'undefined' && displayMode === 'note' && window.__noteStaff) {
       const svg = window.__noteStaff.makeStaffSVG(m);
       const wrap = window.__noteStaff.ensureWrap(box, 'handsNoteWrap');
       wrap.innerHTML = svg;
@@ -2841,18 +2263,54 @@ const HAND_IMAGES = {
     render();
   }
 
-  // Hook triggerKey without breaking if it's not writable
-  try {
-    if (typeof triggerKey === 'function') {
-      const _tk = triggerKey;
-      triggerKey = function(midi, on) {
-        try { if (on) noteOn(midi); else noteOff(midi); } catch {}
-        return _tk(midi, on);
-      };
-    }
-  } catch {}
+// Robust key press detection (works even if triggerKey isn't writable / is scoped)
+// We listen to pointer/mouse events on the rendered keys and drive our own noteOn/noteOff,
+// so the Hand/Note display always updates.
+function installKeyListeners(){
+  const keys = Array.from(document.querySelectorAll('[data-midi]'));
+  if (!keys.length) return false;
 
-  // Center on Middle C (MIDI 60)
+  const onDown = (e) => {
+    // Only primary pointer for mouse
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const t = e.currentTarget;
+    const midi = Number(t.getAttribute('data-midi'));
+    if (!Number.isFinite(midi)) return;
+    try { t.setPointerCapture && t.setPointerCapture(e.pointerId); } catch(_){}
+    noteOn(midi);
+  };
+
+  const onUp = (e) => {
+    const t = e.currentTarget;
+    const midi = Number(t.getAttribute('data-midi'));
+    if (!Number.isFinite(midi)) return;
+    noteOff(midi);
+  };
+
+  keys.forEach(k => {
+    // Pointer events cover touch + mouse in modern browsers
+    k.addEventListener('pointerdown', onDown, {passive:true});
+    k.addEventListener('pointerup', onUp, {passive:true});
+    k.addEventListener('pointercancel', onUp, {passive:true});
+    k.addEventListener('pointerleave', onUp, {passive:true});
+    // Fallback click for very old browsers
+    k.addEventListener('mousedown', (e)=>{ if (e.button===0) onDown(e); }, {passive:true});
+    k.addEventListener('mouseup', onUp, {passive:true});
+    k.addEventListener('touchstart', onDown, {passive:true});
+    k.addEventListener('touchend', onUp, {passive:true});
+  });
+
+  return true;
+}
+
+// Keys may render after scripts; retry a few times
+(function retryInstall(attempts){
+  if (installKeyListeners()) return;
+  if (attempts <= 0) return;
+  setTimeout(()=>retryInstall(attempts-1), 250);
+})(20);
+
+// Center on Middle C (MIDI 60)
   function centerOnMiddleC() {
     const wrap = document.getElementById('scrollWrap');
     if (!wrap) return;
@@ -3279,6 +2737,17 @@ function forceAccidentalsBoth(){
   function letterForSpelling(sp){ return sp[0].toUpperCase(); }
 
   function makeStaffSVG(midi){
+    // Limit staff rendering to C2–C6 (midi 36..84) so notes don't run off the staff.
+    if (midi < 36 || midi > 84) {
+      const spells = spellingsForMidi(midi);
+      const caption = (spells.length === 2) ? `${spells[0]} / ${spells[1]}` : `${spells[0]}`;
+      return `
+<svg class="note-staff-svg" viewBox="0 0 170 130" preserveAspectRatio="xMidYMid meet" aria-label="${caption}">
+  <text x="85" y="64" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="18" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial">${caption}</text>
+  <text x="85" y="88" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="11" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial">Outside C2–C6</text>
+</svg>`;
+    }
+
     const clef = clefForMidi(midi);
     const spells = spellingsForMidi(midi);
     const octave = Math.floor(midi/12)-1;
@@ -3307,7 +2776,7 @@ function forceAccidentalsBoth(){
 
     const caption = (spells.length===2) ? `${spells[0]} / ${spells[1]}` : `${spells[0]}`;
     return `
-<svg class="note-staff-svg" viewBox="0 0 170 100" preserveAspectRatio="xMidYMid meet" aria-label="Note on staff">
+<svg class="note-staff-svg" viewBox="0 0 170 130" preserveAspectRatio="xMidYMid meet" aria-label="Note on staff">
   <g stroke="rgba(255,255,255,0.75)" stroke-width="1.6" stroke-linecap="round">
     <line x1="${staffLeft}" y1="${bottomY}" x2="${staffRight}" y2="${bottomY}"/>
     <line x1="${staffLeft}" y1="${bottomY-2*step}" x2="${staffRight}" y2="${bottomY-2*step}"/>
@@ -3340,23 +2809,184 @@ function forceAccidentalsBoth(){
 </script>
 
 
+
+
 <script>
-/* Mode sync for Safari/published builds: ensure displayMode matches the visible toggle on first render. */
-document.addEventListener('DOMContentLoaded', function(){
-  try{
-    const bn=document.getElementById('btnNote');
-    const bs=document.getElementById('btnSolfege');
-    if (bn && (bn.classList.contains('active') || bn.getAttribute('aria-pressed')==='true')){
-      window.displayMode = 'note';
-    } else if (bs && (bs.classList.contains('active') || bs.getAttribute('aria-pressed')==='true')){
-      window.displayMode = 'solfege';
+(function(){
+  const BEAT = 1000;
+  const SHORT_HOLD = 800;
+  const LONG_HOLD = 3000;
+  const ASC = [0,4,2,5,4,7,5,9,7,11,9,12,11,14,12];
+  const DESC = [12,9,11,7,9,5,7,4,5,2,4,0,2,-1,0];
+
+  let warmupRunning = false;
+  let warmupTimers = [];
+  let activeWarmupKeys = [];
+
+  function clearWarmupTimers(){
+    warmupTimers.forEach(id => clearTimeout(id));
+    warmupTimers = [];
+  }
+
+  function releaseWarmupKeys(){
+    activeWarmupKeys.forEach(({el, pointerId}) => {
+      try{
+        if (!el) return;
+        if (window.PointerEvent) {
+          const up = new PointerEvent('pointerup', {
+            bubbles: true,
+            pointerId: pointerId,
+            pointerType: 'mouse',
+            button: 0,
+            isPrimary: true
+          });
+          el.dispatchEvent(up);
+        } else {
+          const up = new MouseEvent('mouseup', { bubbles: true, button: 0 });
+          el.dispatchEvent(up);
+        }
+      } catch(e) {}
+      try { el.classList.remove('active'); } catch(e) {}
+    });
+    activeWarmupKeys = [];
+  }
+
+  function stopWarmup(){
+    warmupRunning = false;
+    clearWarmupTimers();
+    releaseWarmupKeys();
+    try { pendingMidi = null; } catch(e) {}
+  }
+
+  function queue(fn, delay){
+    const id = setTimeout(() => {
+      if (!warmupRunning) return;
+      fn();
+    }, delay);
+    warmupTimers.push(id);
+    return id;
+  }
+
+  function pressRenderedKey(midi, hold, pointerId){
+    const el = document.querySelector('[data-midi="' + midi + '"]');
+    if (!el) return;
+
+    if (window.PointerEvent) {
+      const down = new PointerEvent('pointerdown', {
+        bubbles: true,
+        pointerId: pointerId,
+        pointerType: 'mouse',
+        button: 0,
+        isPrimary: true
+      });
+      el.dispatchEvent(down);
+
+      activeWarmupKeys.push({el, pointerId});
+
+      queue(() => {
+        try{
+          const up = new PointerEvent('pointerup', {
+            bubbles: true,
+            pointerId: pointerId,
+            pointerType: 'mouse',
+            button: 0,
+            isPrimary: true
+          });
+          el.dispatchEvent(up);
+        } catch(e) {}
+        activeWarmupKeys = activeWarmupKeys.filter(k => !(k.el === el && k.pointerId === pointerId));
+      }, hold);
+    } else {
+      const down = new MouseEvent('mousedown', { bubbles: true, button: 0 });
+      el.dispatchEvent(down);
+
+      activeWarmupKeys.push({el, pointerId});
+
+      queue(() => {
+        try{
+          const up = new MouseEvent('mouseup', { bubbles: true, button: 0 });
+          el.dispatchEvent(up);
+        } catch(e) {}
+        activeWarmupKeys = activeWarmupKeys.filter(k => !(k.el === el && k.pointerId === pointerId));
+      }, hold);
     }
-  }catch(e){}
-  try{
-    // Force a render once in case mode was set before first note.
-    if (typeof render === 'function') render();
-  }catch(e){}
-});
+  }
+
+  function resumeAudioNow(){
+    try{
+      if (typeof unlockAudio === 'function') unlockAudio();
+    } catch(e) {}
+    try{
+      if (typeof getCtx === 'function'){
+        const ac = getCtx();
+        if (ac && ac.state !== 'running' && ac.resume) ac.resume();
+      }
+    } catch(e) {}
+  }
+
+  function playWarmup(){
+    stopWarmup();
+    resumeAudioNow();
+
+    const baseMidi = 60 + (typeof tonic !== 'undefined' ? tonic : 0);
+    let t = 0;
+    let pid = 7000;
+    warmupRunning = true;
+
+    ASC.forEach((off, i) => {
+      const midi = baseMidi + off;
+      const hold = (i === ASC.length - 1) ? LONG_HOLD : SHORT_HOLD;
+      const thisPid = pid++;
+      queue(() => pressRenderedKey(midi, hold, thisPid), t);
+      t += BEAT;
+    });
+
+    t += LONG_HOLD - BEAT;
+    t += BEAT;
+
+    DESC.forEach((off) => {
+      const midi = baseMidi + off;
+      const thisPid = pid++;
+      queue(() => pressRenderedKey(midi, SHORT_HOLD, thisPid), t);
+      t += BEAT;
+    });
+
+    queue(() => { stopWarmup(); }, t + SHORT_HOLD + 50);
+  }
+
+  window.stopWarmup = stopWarmup;
+  window.playWarmup = playWarmup;
+
+  // Resume audio on any fresh interaction after Safari suspends it.
+  ['pointerdown','touchstart','mousedown','keydown'].forEach(evt => {
+    window.addEventListener(evt, resumeAudioNow, { passive: true });
+  });
+
+  // Stop warm-up when page/app is backgrounded; resume audio when visible again.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopWarmup();
+      try{
+        if (typeof getCtx === 'function'){
+          const ac = getCtx();
+          if (ac && ac.state === 'running' && ac.suspend) ac.suspend();
+        }
+      } catch(e) {}
+    } else {
+      resumeAudioNow();
+    }
+  });
+
+  window.addEventListener('pagehide', stopWarmup);
+  window.addEventListener('blur', () => {
+    if (document.hidden) stopWarmup();
+  });
+
+  window.addEventListener('load', () => {
+    const btn = document.getElementById('warmupBtn');
+    if (btn) btn.onclick = playWarmup;
+  });
+})();
 </script>
 
 </body>
