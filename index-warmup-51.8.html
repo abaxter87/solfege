@@ -2821,13 +2821,18 @@ function forceAccidentalsBoth(){
   // Descending: 8.6.7.5.6.4.5.3.4.2.3.1.2.-7.1
   const DESC = [12,9,11,7,9,5,7,4,5,2,4,0,2,-1,0];
 
-  function playWarmup(){
+  
+function playWarmup(){
     try { if (typeof unlockAudio === 'function') unlockAudio(); } catch(e) {}
 
     const press = (typeof window.triggerKey === 'function')
       ? window.triggerKey
       : (typeof triggerKey === 'function' ? triggerKey : null);
     if (!press) return;
+
+    const handOn = (typeof noteOn === 'function') ? noteOn : (typeof window.noteOn === 'function' ? window.noteOn : null);
+    const handOff = (typeof noteOff === 'function') ? noteOff : (typeof window.noteOff === 'function' ? window.noteOff : null);
+    const handUpdate = (typeof updateFromMidi === 'function') ? updateFromMidi : (typeof window.updateFromMidi === 'function' ? window.updateFromMidi : null);
 
     const base = 60 + (typeof tonic !== 'undefined' ? tonic : 0);
     let t = 0;
@@ -2836,20 +2841,30 @@ function forceAccidentalsBoth(){
       const midi = base + off;
       const hold = (i === ASC.length - 1) ? LONG_HOLD : SHORT_HOLD;
       setTimeout(() => {
+        if (handOn) handOn(midi);
+        if (handUpdate) handUpdate(midi);
         press(midi, true);
-        setTimeout(() => press(midi, false), hold);
+        setTimeout(() => {
+          press(midi, false);
+          if (handOff) handOff(midi);
+        }, hold);
       }, t);
       t += BEAT;
     });
 
-    t += LONG_HOLD - BEAT; // finish holding the final 8 for full 3 beats
-    t += BEAT;             // one beat rest
+    t += LONG_HOLD - BEAT;
+    t += BEAT;
 
     DESC.forEach((off) => {
       const midi = base + off;
       setTimeout(() => {
+        if (handOn) handOn(midi);
+        if (handUpdate) handUpdate(midi);
         press(midi, true);
-        setTimeout(() => press(midi, false), SHORT_HOLD);
+        setTimeout(() => {
+          press(midi, false);
+          if (handOff) handOff(midi);
+        }, SHORT_HOLD);
       }, t);
       t += BEAT;
     });
@@ -2872,155 +2887,6 @@ function forceAccidentalsBoth(){
 })();
 </script>
 
-
-
-<script>
-(function(){
-  const BEAT = 1000;
-  const SHORT_HOLD = 800;
-  const LONG_HOLD = 3000;
-  const ASC = [0,4,2,5,4,7,5,9,7,11,9,12,11,14,12];
-  const DESC = [12,9,11,7,9,5,7,4,5,2,4,0,2,-1,0];
-
-  let warmupRunning = false;
-  let warmupCurrentMidi = null;
-  let warmupPinTimer = null;
-
-  const HAND_BASE = {
-    "Do":"Do","Di":"Do","Ra":"Re","Re":"Re","Ri":"Re","Me":"Mi","Mi":"Mi",
-    "Fa":"Fa","Fi":"Fa","Se":"Sol","Sol":"Sol","Si":"Sol",
-    "Le":"La","La":"La","Li":"La","Te":"Ti","Ti":"Ti"
-  };
-
-  function warmupSyllableForMidi(midi){
-    try{
-      let s = String(getLabel(midi) || "").trim();
-      if (!s) return "";
-      if (s.includes("/")) s = s.split("/")[0].trim();
-      if (s.includes("(")) s = s.split("(")[0].trim();
-      s = s.split(/\s+/)[0].trim();
-      return HAND_BASE[s] || s;
-    }catch(e){
-      return "";
-    }
-  }
-
-  function renderWarmupHandSign(midi){
-    if (typeof displayMode !== "undefined" && displayMode === "note") return;
-
-    const syl = warmupSyllableForMidi(midi);
-    if (!syl) return;
-
-    try{
-      const tiles = document.getElementById("handsTiles");
-      const placeholder = document.getElementById("handsPlaceholder");
-      if (tiles) {
-        tiles.innerHTML = "";
-        const tile = document.createElement("div");
-        tile.className = "hand-tile";
-
-        const img = document.createElement("img");
-        img.className = "hand-img";
-        img.alt = syl + " hand sign";
-        if (typeof HAND_IMAGES !== "undefined" && HAND_IMAGES[syl]) {
-          img.src = HAND_IMAGES[syl];
-        }
-        tile.appendChild(img);
-
-        const lab = document.createElement("div");
-        lab.className = "hand-label";
-        lab.textContent = syl;
-        tile.appendChild(lab);
-
-        tiles.appendChild(tile);
-      }
-      if (placeholder) placeholder.style.display = "none";
-    } catch(e) {}
-
-    try{
-      const mini = document.getElementById("handMini");
-      const miniImg = document.getElementById("handMiniImg");
-      const miniLab = document.getElementById("handMiniLab");
-      if (mini && miniImg && miniLab) {
-        if (typeof HAND_IMAGES !== "undefined" && HAND_IMAGES[syl]) {
-          miniImg.src = HAND_IMAGES[syl];
-          mini.classList.add("has-img");
-        }
-        miniLab.textContent = syl;
-      }
-    } catch(e) {}
-  }
-
-  function startWarmupPin(){
-    warmupRunning = true;
-    if (warmupPinTimer) clearInterval(warmupPinTimer);
-    warmupPinTimer = setInterval(function(){
-      if (warmupRunning && warmupCurrentMidi != null) {
-        renderWarmupHandSign(warmupCurrentMidi);
-      }
-    }, 120);
-  }
-
-  function stopWarmupPin(){
-    warmupRunning = false;
-    if (warmupPinTimer) {
-      clearInterval(warmupPinTimer);
-      warmupPinTimer = null;
-    }
-  }
-
-  function playWarmupPinned(){
-    try { if (typeof unlockAudio === "function") unlockAudio(); } catch(e) {}
-
-    const press = (typeof window.triggerKey === "function")
-      ? window.triggerKey
-      : (typeof triggerKey === "function" ? triggerKey : null);
-    if (!press) return;
-
-    const base = 60 + (typeof tonic !== "undefined" ? tonic : 0);
-    let t = 0;
-
-    startWarmupPin();
-
-    ASC.forEach((off, i) => {
-      const midi = base + off;
-      const hold = (i === ASC.length - 1) ? LONG_HOLD : SHORT_HOLD;
-      setTimeout(() => {
-        warmupCurrentMidi = midi;
-        renderWarmupHandSign(midi);
-        press(midi, true);
-        setTimeout(() => press(midi, false), hold);
-      }, t);
-      t += BEAT;
-    });
-
-    t += (LONG_HOLD - BEAT);
-    t += BEAT;
-
-    DESC.forEach((off) => {
-      const midi = base + off;
-      setTimeout(() => {
-        warmupCurrentMidi = midi;
-        renderWarmupHandSign(midi);
-        press(midi, true);
-        setTimeout(() => press(midi, false), SHORT_HOLD);
-      }, t);
-      t += BEAT;
-    });
-
-    setTimeout(() => {
-      stopWarmupPin();
-    }, t + SHORT_HOLD + 150);
-  }
-
-  window.playWarmup = playWarmupPinned;
-
-  window.addEventListener("load", function(){
-    const btn = document.getElementById("warmupBtn");
-    if (btn) btn.onclick = playWarmupPinned;
-  });
-})();
-</script>
 
 </body>
 </html>
