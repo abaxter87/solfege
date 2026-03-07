@@ -2319,11 +2319,21 @@ function installKeyListeners(){
     const targetCenter = mid.offsetLeft + mid.offsetWidth/2;
     wrap.scrollLeft = Math.max(0, targetCenter - wrap.clientWidth/2);
   }
-  window.addEventListener('load', ()=> {
-    setTimeout(centerOnMiddleC, 80);
-    setTimeout(centerOnMiddleC, 240);
-    setTimeout(centerOnMiddleC, 520);
-  });
+  
+window.addEventListener('load', () => {
+  let btn = document.getElementById('warmupBtn');
+  if(!btn){
+    const controls = document.querySelector('.controls') || document.body;
+    btn = document.createElement('button');
+    btn.id = 'warmupBtn';
+    btn.textContent = 'Broken Thirds Warm-up';
+    btn.style.marginLeft = '8px';
+    btn.style.padding = '6px 18px';
+    controls.appendChild(btn);
+  }
+  btn.onclick = playWarmup;
+});
+
 
 })();
 
@@ -2813,7 +2823,7 @@ function forceAccidentalsBoth(){
 
 <script>
 (function(){
-  const BEAT = 1000;
+  const BEAT = 1091;
   const SHORT_HOLD = 800;
   const LONG_HOLD = 3000;
   const ASC = [0,4,2,5,4,7,5,9,7,11,9,12,11,14,12];
@@ -2942,7 +2952,7 @@ function forceAccidentalsBoth(){
     });
 
     t += LONG_HOLD - BEAT;
-    t += BEAT;
+    t += BEAT * 0.25;
 
     DESC.forEach((off) => {
       const midi = baseMidi + off;
