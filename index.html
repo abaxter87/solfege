@@ -1189,19 +1189,44 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
 </style>
 
 
+
 <style>
-/* Vertically center the mini staff in note mode */
+/* Mini note-mode: truly center the staff SVG in the box */
 #handMini.note-mode{
-  position: relative !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
 }
 
+#handMini.note-mode .note-staff-wrap,
 #handMini.note-mode #handMiniNoteWrap{
-  position: absolute !important;
-  top: 62% !important;
-  left: 0;
+  position: static !important;
   width: 100% !important;
-  transform: translateY(-50%) scale(1.28) !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+#handMini.note-mode .note-staff-svg,
+#handMini.note-mode #handMiniNoteWrap svg{
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  transform: scale(1.18) !important;
   transform-origin: center center !important;
+}
+
+/* Nudge the drawn content itself into the visual center */
+#handMini.note-mode #handMiniNoteWrap svg{
+  overflow: visible !important;
 }
 </style>
 
