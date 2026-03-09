@@ -505,6 +505,9 @@ body, #scrollWrap, .piano, .white-key, .black-key, .staff, .staff-strip {
   .keysig-row::before{ content: ""; display:none; }
 }
 
+
+#drillRow button{ margin:0 !important; white-space:nowrap; }
+#drillRow::-webkit-scrollbar{ display:none; }
 </style>
 
 <style>
@@ -2406,18 +2409,24 @@ function installKeyListeners(){
   }
   
 window.addEventListener('load', () => {
-    let btn = document.getElementById('warmupBtn');
     const controls = document.querySelector('.controls') || document.body;
 
-    if (!btn) {
-      btn = document.createElement('button');
-      btn.id = 'warmupBtn';
-      btn.type = 'button';
-      btn.style.marginLeft = '8px';
-      btn.style.padding = '6px 18px';
-      controls.appendChild(btn);
+    let row = document.getElementById('drillRow');
+    if (!row) {
+      row = document.createElement('div');
+      row.id = 'drillRow';
+      row.style.display = 'flex';
+      row.style.alignItems = 'center';
+      row.style.justifyContent = 'center';
+      row.style.gap = '6px';
+      row.style.flexWrap = 'nowrap';
+      row.style.width = '100%';
+      row.style.margin = '10px 0 12px';
+      row.style.overflowX = 'auto';
+      row.style.padding = '0 8px';
+      if (controls.parentNode) controls.insertAdjacentElement('afterend', row);
+      else document.body.appendChild(row);
     }
-    btn.textContent = '3rds Drill';
 
     let downBtn = document.getElementById('warmupOctaveDown');
     if (!downBtn) {
@@ -2426,11 +2435,6 @@ window.addEventListener('load', () => {
       downBtn.type = 'button';
       downBtn.textContent = '↓';
       downBtn.title = 'Restart one octave lower';
-      downBtn.style.padding = '6px 12px';
-      downBtn.style.marginRight = '6px';
-      downBtn.style.borderRadius = '999px';
-      downBtn.style.color = '#000';
-      controls.insertBefore(downBtn, btn);
     }
 
     let scaleBtn = document.getElementById('scaleDrillBtn');
@@ -2438,13 +2442,20 @@ window.addEventListener('load', () => {
       scaleBtn = document.createElement('button');
       scaleBtn.id = 'scaleDrillBtn';
       scaleBtn.type = 'button';
-      scaleBtn.textContent = 'Scale Drill';
-      scaleBtn.style.padding = '6px 18px';
-      scaleBtn.style.marginLeft = '6px';
-      scaleBtn.style.marginRight = '6px';
-      scaleBtn.style.borderRadius = '999px';
-      scaleBtn.style.color = '#000';
-      if (btn) controls.insertBefore(scaleBtn, btn);
+    }
+
+    let thirdsBtn = document.getElementById('warmupBtn');
+    if (!thirdsBtn) {
+      thirdsBtn = document.createElement('button');
+      thirdsBtn.id = 'warmupBtn';
+      thirdsBtn.type = 'button';
+    }
+
+    let fourthsBtn = document.getElementById('fourthsDrillBtn');
+    if (!fourthsBtn) {
+      fourthsBtn = document.createElement('button');
+      fourthsBtn.id = 'fourthsDrillBtn';
+      fourthsBtn.type = 'button';
     }
 
     let upBtn = document.getElementById('warmupOctaveUp');
@@ -2454,13 +2465,32 @@ window.addEventListener('load', () => {
       upBtn.type = 'button';
       upBtn.textContent = '↑';
       upBtn.title = 'Restart one octave higher';
-      upBtn.style.padding = '6px 12px';
-      upBtn.style.marginLeft = '6px';
-      upBtn.style.borderRadius = '999px';
-      upBtn.style.color = '#000';
-      if (btn.nextSibling) controls.insertBefore(upBtn, btn.nextSibling);
-      else controls.appendChild(upBtn);
     }
+
+    downBtn.style.padding = '6px 12px';
+    downBtn.style.borderRadius = '999px';
+    downBtn.style.color = '#000';
+
+    scaleBtn.textContent = 'Scale';
+    scaleBtn.style.padding = '6px 14px';
+    scaleBtn.style.borderRadius = '999px';
+    scaleBtn.style.color = '#000';
+
+    thirdsBtn.textContent = '3rds';
+    thirdsBtn.style.padding = '6px 14px';
+    thirdsBtn.style.borderRadius = '999px';
+    thirdsBtn.style.color = '#000';
+
+    fourthsBtn.textContent = '4ths';
+    fourthsBtn.style.padding = '6px 14px';
+    fourthsBtn.style.borderRadius = '999px';
+    fourthsBtn.style.color = '#000';
+
+    upBtn.style.padding = '6px 12px';
+    upBtn.style.borderRadius = '999px';
+    upBtn.style.color = '#000';
+
+    row.replaceChildren(downBtn, scaleBtn, thirdsBtn, fourthsBtn, upBtn);
 
     downBtn.onclick = (e) => {
       e.stopPropagation();
@@ -2469,6 +2499,7 @@ window.addEventListener('load', () => {
       window.scrollKeyboardToMidi(nextBase + (typeof tonic !== 'undefined' ? tonic : 0) - 1);
       window.restartWarmupFromDoBase(nextBase);
     };
+
     upBtn.onclick = (e) => {
       e.stopPropagation();
       const currentBase = (typeof window.__currentWarmupDoBase === 'number') ? window.__currentWarmupDoBase : 60;
@@ -2476,8 +2507,10 @@ window.addEventListener('load', () => {
       window.scrollKeyboardToMidi(nextBase + (typeof tonic !== 'undefined' ? tonic : 0) - 1);
       window.restartWarmupFromDoBase(nextBase);
     };
-    btn.onclick = () => window.playThirdsDrill();
+
     scaleBtn.onclick = () => window.playScaleDrill();
+    thirdsBtn.onclick = () => window.playThirdsDrill();
+    fourthsBtn.onclick = () => window.playFourthsDrill();
 
     updateWarmupOctaveButtons();
   });
@@ -2763,6 +2796,17 @@ window.addEventListener('load', () => {
     return out;
   }
 
+  function fourthsAscOffsets(){
+    // Perfect fourths: always 5 semitones above the lower note.
+    // In C major this gives ... F -> Bb, not F -> B.
+    return [0,5,2,7,4,9,5,10,7,12,9,14,11,16,12];
+  }
+
+  function fourthsDescOffsets(){
+    // Mirror descent, keeping every pair a perfect fourth.
+    return [12,7,11,6,9,4,7,2,5,0,4,-1,2,-3,0];
+  }
+
   let warmupRunning = false;
   let warmupTimers = [];
   let activeWarmupKeys = [];
@@ -2798,23 +2842,9 @@ window.addEventListener('load', () => {
   }
 
   function releaseWarmupKeys(){
-    activeWarmupKeys.forEach(({el, pointerId}) => {
-      try{
-        if (!el) return;
-        if (window.PointerEvent) {
-          const up = new PointerEvent('pointerup', {
-            bubbles: true,
-            pointerId: pointerId,
-            pointerType: 'mouse',
-            button: 0,
-            isPrimary: true
-          });
-          el.dispatchEvent(up);
-        } else {
-          const up = new MouseEvent('mouseup', { bubbles: true, button: 0 });
-          el.dispatchEvent(up);
-        }
-      } catch(e) {}
+    activeWarmupKeys.forEach(({el, midi}) => {
+      try { if (typeof midi === 'number') triggerKey(midi, false); } catch(e) {}
+      try { if (typeof midi === 'number' && typeof noteOff === 'function') noteOff(midi); } catch(e) {}
       try { el.classList.remove('active'); } catch(e) {}
     });
     activeWarmupKeys = [];
@@ -2841,45 +2871,18 @@ window.addEventListener('load', () => {
     const el = document.querySelector('[data-midi="' + midi + '"]');
     if (!el) return;
 
-    if (window.PointerEvent) {
-      const down = new PointerEvent('pointerdown', {
-        bubbles: true,
-        pointerId: pointerId,
-        pointerType: 'mouse',
-        button: 0,
-        isPrimary: true
-      });
-      el.dispatchEvent(down);
+    // Drive the drill directly instead of relying on synthetic pointer events.
+    // This keeps drill audio reliable while still updating key highlight + hand/note display.
+    try { triggerKey(midi, true); } catch(e) {}
+    try { if (typeof noteOn === 'function') noteOn(midi); } catch(e) {}
 
-      activeWarmupKeys.push({el, pointerId});
+    activeWarmupKeys.push({el, pointerId, midi});
 
-      queue(() => {
-        try{
-          const up = new PointerEvent('pointerup', {
-            bubbles: true,
-            pointerId: pointerId,
-            pointerType: 'mouse',
-            button: 0,
-            isPrimary: true
-          });
-          el.dispatchEvent(up);
-        } catch(e) {}
-        activeWarmupKeys = activeWarmupKeys.filter(k => !(k.el === el && k.pointerId === pointerId));
-      }, hold);
-    } else {
-      const down = new MouseEvent('mousedown', { bubbles: true, button: 0 });
-      el.dispatchEvent(down);
-
-      activeWarmupKeys.push({el, pointerId});
-
-      queue(() => {
-        try{
-          const up = new MouseEvent('mouseup', { bubbles: true, button: 0 });
-          el.dispatchEvent(up);
-        } catch(e) {}
-        activeWarmupKeys = activeWarmupKeys.filter(k => !(k.el === el && k.pointerId === pointerId));
-      }, hold);
-    }
+    queue(() => {
+      try { triggerKey(midi, false); } catch(e) {}
+      try { if (typeof noteOff === 'function') noteOff(midi); } catch(e) {}
+      activeWarmupKeys = activeWarmupKeys.filter(k => !(k.el === el && k.pointerId === pointerId));
+    }, hold);
   }
 
   function resumeAudioNow(){
@@ -3046,6 +3049,43 @@ window.addEventListener('load', () => {
     }, t + 50);
   }
 
+  function playFourthsCycle(sessionId){
+    if (!warmupRunning || sessionId !== warmupSession) return;
+
+    resumeAudioNow();
+
+    const baseMidi = window.__currentWarmupDoBase + (typeof tonic !== 'undefined' ? tonic : 0);
+    let t = 0;
+    let pid = 27000 + (sessionId * 100);
+
+    const ascOffsets = fourthsAscOffsets();
+    const descOffsets = fourthsDescOffsets();
+
+    ascOffsets.forEach((off, i) => {
+      const midi = baseMidi + off;
+      const hold = (i === ascOffsets.length - 1) ? LONG_HOLD : SHORT_HOLD;
+      const thisPid = pid++;
+      queue(() => pressRenderedKey(midi, hold, thisPid), t);
+      t += BEAT;
+    });
+
+    t += LONG_HOLD - BEAT;
+    t += BEAT * 0.25;
+
+    descOffsets.forEach((off) => {
+      const midi = baseMidi + off;
+      const thisPid = pid++;
+      queue(() => pressRenderedKey(midi, SHORT_HOLD, thisPid), t);
+      t += BEAT;
+    });
+
+    queue(() => {
+      if (!warmupRunning || sessionId !== warmupSession) return;
+      advanceTonic();
+      playFourthsCycle(sessionId);
+    }, t + SHORT_HOLD + 50);
+  }
+
   function playThirdsDrill(){
     stopWarmup();
     window.__currentDrillType = 'thirds';
@@ -3062,9 +3102,19 @@ window.addEventListener('load', () => {
     playScaleCycle(sessionId);
   }
 
+  function playFourthsDrill(){
+    stopWarmup();
+    window.__currentDrillType = 'fourths';
+    warmupRunning = true;
+    const sessionId = warmupSession;
+    playFourthsCycle(sessionId);
+  }
+
   function playCurrentDrill(){
     if (window.__currentDrillType === 'scale') {
       playScaleDrill();
+    } else if (window.__currentDrillType === 'fourths') {
+      playFourthsDrill();
     } else {
       playThirdsDrill();
     }
@@ -3085,6 +3135,7 @@ window.addEventListener('load', () => {
   window.playWarmup = playWarmup;
   window.playThirdsDrill = playThirdsDrill;
   window.playScaleDrill = playScaleDrill;
+  window.playFourthsDrill = playFourthsDrill;
   window.playCurrentDrill = playCurrentDrill;
   window.restartWarmupFromDoBase = restartWarmupFromDoBase;
   window.restartWarmupAtShift = restartWarmupAtShift;
